@@ -1,0 +1,1610 @@
+\documentclass[11pt]{article}
+
+    \usepackage[breakable]{tcolorbox}
+    \usepackage{parskip} % Stop auto-indenting (to mimic markdown behaviour)
+    
+    \usepackage{iftex}
+    \ifPDFTeX
+    	\usepackage[T1]{fontenc}
+    	\usepackage{mathpazo}
+    \else
+    	\usepackage{fontspec}
+    \fi
+    
+    \usepackage[backend=biber]{biblatex}
+    \addbibresource{ref.bib}
+    % Basic figure setup, for now with no caption control since it's done
+    % automatically by Pandoc (which extracts ![](path) syntax from Markdown).
+    \usepackage{graphicx}
+    % Maintain compatibility with old templates. Remove in nbconvert 6.0
+    \let\Oldincludegraphics\includegraphics
+    % Ensure that by default, figures have no caption (until we provide a
+    % proper Figure object with a Caption API and a way to capture that
+    % in the conversion process - todo).
+    \usepackage{caption}
+    \DeclareCaptionFormat{nocaption}{}
+    \captionsetup{format=nocaption,aboveskip=0pt,belowskip=0pt}
+
+    \usepackage[Export]{adjustbox} % Used to constrain images to a maximum size
+    \adjustboxset{max size={0.9\linewidth}{0.9\paperheight}}
+    \usepackage{float}
+    \floatplacement{figure}{H} % forces figures to be placed at the correct location
+    \usepackage{xcolor} % Allow colors to be defined
+    \usepackage{enumerate} % Needed for markdown enumerations to work
+    \usepackage{geometry} % Used to adjust the document margins
+    \usepackage{amsmath} % Equations
+    \usepackage{amssymb} % Equations
+    \usepackage{textcomp} % defines textquotesingle
+    % Hack from http://tex.stackexchange.com/a/47451/13684:
+    \AtBeginDocument{%
+        \def\PYZsq{\textquotesingle}% Upright quotes in Pygmentized code
+    }
+    \usepackage{upquote} % Upright quotes for verbatim code
+    \usepackage{eurosym} % defines \euro
+    % \usepackage[mathletters]{ucs} % Extended unicode (utf-8) support
+    \usepackage{fancyvrb} % verbatim replacement that allows latex
+
+    % The hyperref package gives us a pdf with properly built
+    % internal navigation ('pdf bookmarks' for the table of contents,
+    % internal cross-reference links, web links for URLs, etc.)
+    \usepackage{hyperref}
+    % The default LaTeX title has an obnoxious amount of whitespace. By default,
+    % titling removes some of it. It also provides customization options.
+    \usepackage{titling}
+    \usepackage{longtable} % longtable support required by pandoc >1.10
+    \usepackage{booktabs}  % table support for pandoc > 1.12.2
+    \usepackage[inline]{enumitem} % IRkernel/repr support (it uses the enumerate* environment)
+    \usepackage[normalem]{ulem} % ulem is needed to support strikethroughs (\sout)
+                                % normalem makes italics be italics, not underlines
+    \usepackage{mathrsfs}
+    
+
+    
+    % Colors for the hyperref package
+    \definecolor{urlcolor}{rgb}{0,.145,.698}
+    \definecolor{linkcolor}{rgb}{.71,0.21,0.01}
+    \definecolor{citecolor}{rgb}{.12,.54,.11}
+
+    % ANSI colors
+    \definecolor{ansi-black}{HTML}{3E424D}
+    \definecolor{ansi-black-intense}{HTML}{282C36}
+    \definecolor{ansi-red}{HTML}{E75C58}
+    \definecolor{ansi-red-intense}{HTML}{B22B31}
+    \definecolor{ansi-green}{HTML}{00A250}
+    \definecolor{ansi-green-intense}{HTML}{007427}
+    \definecolor{ansi-yellow}{HTML}{DDB62B}
+    \definecolor{ansi-yellow-intense}{HTML}{B27D12}
+    \definecolor{ansi-blue}{HTML}{208FFB}
+    \definecolor{ansi-blue-intense}{HTML}{0065CA}
+    \definecolor{ansi-magenta}{HTML}{D160C4}
+    \definecolor{ansi-magenta-intense}{HTML}{A03196}
+    \definecolor{ansi-cyan}{HTML}{60C6C8}
+    \definecolor{ansi-cyan-intense}{HTML}{258F8F}
+    \definecolor{ansi-white}{HTML}{C5C1B4}
+    \definecolor{ansi-white-intense}{HTML}{A1A6B2}
+    \definecolor{ansi-default-inverse-fg}{HTML}{FFFFFF}
+    \definecolor{ansi-default-inverse-bg}{HTML}{000000}
+
+    % commands and environments needed by pandoc snippets
+    % extracted from the output of `pandoc -s`
+    \providecommand{\tightlist}{%
+      \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+    \DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+    % Add ',fontsize=\small' for more characters per line
+    \newenvironment{Shaded}{}{}
+    \newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.00,0.44,0.13}{\textbf{{#1}}}}
+    \newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.56,0.13,0.00}{{#1}}}
+    \newcommand{\DecValTok}[1]{\textcolor[rgb]{0.25,0.63,0.44}{{#1}}}
+    \newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.25,0.63,0.44}{{#1}}}
+    \newcommand{\FloatTok}[1]{\textcolor[rgb]{0.25,0.63,0.44}{{#1}}}
+    \newcommand{\CharTok}[1]{\textcolor[rgb]{0.25,0.44,0.63}{{#1}}}
+    \newcommand{\StringTok}[1]{\textcolor[rgb]{0.25,0.44,0.63}{{#1}}}
+    \newcommand{\CommentTok}[1]{\textcolor[rgb]{0.38,0.63,0.69}{\textit{{#1}}}}
+    \newcommand{\OtherTok}[1]{\textcolor[rgb]{0.00,0.44,0.13}{{#1}}}
+    \newcommand{\AlertTok}[1]{\textcolor[rgb]{1.00,0.00,0.00}{\textbf{{#1}}}}
+    \newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.02,0.16,0.49}{{#1}}}
+    \newcommand{\RegionMarkerTok}[1]{{#1}}
+    \newcommand{\ErrorTok}[1]{\textcolor[rgb]{1.00,0.00,0.00}{\textbf{{#1}}}}
+    \newcommand{\NormalTok}[1]{{#1}}
+    
+    % Additional commands for more recent versions of Pandoc
+    \newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.53,0.00,0.00}{{#1}}}
+    \newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.25,0.44,0.63}{{#1}}}
+    \newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.25,0.44,0.63}{{#1}}}
+    \newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.73,0.40,0.53}{{#1}}}
+    \newcommand{\ImportTok}[1]{{#1}}
+    \newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.73,0.13,0.13}{\textit{{#1}}}}
+    \newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.38,0.63,0.69}{\textbf{\textit{{#1}}}}}
+    \newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.38,0.63,0.69}{\textbf{\textit{{#1}}}}}
+    \newcommand{\VariableTok}[1]{\textcolor[rgb]{0.10,0.09,0.49}{{#1}}}
+    \newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.00,0.44,0.13}{\textbf{{#1}}}}
+    \newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.40,0.40,0.40}{{#1}}}
+    \newcommand{\BuiltInTok}[1]{{#1}}
+    \newcommand{\ExtensionTok}[1]{{#1}}
+    \newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.74,0.48,0.00}{{#1}}}
+    \newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.49,0.56,0.16}{{#1}}}
+    \newcommand{\InformationTok}[1]{\textcolor[rgb]{0.38,0.63,0.69}{\textbf{\textit{{#1}}}}}
+    \newcommand{\WarningTok}[1]{\textcolor[rgb]{0.38,0.63,0.69}{\textbf{\textit{{#1}}}}}
+    
+    
+    % Define a nice break command that doesn't care if a line doesn't already
+    % exist.
+    \def\br{\hspace*{\fill} \\* }
+    % Math Jax compatibility definitions
+    \def\gt{>}
+    \def\lt{<}
+    \let\Oldtex\TeX
+    \let\Oldlatex\LaTeX
+    \renewcommand{\TeX}{\textrm{\Oldtex}}
+    \renewcommand{\LaTeX}{\textrm{\Oldlatex}}
+    % Document parameters
+    % Document title
+    \title{trial}
+    
+    
+    
+    
+    
+% Pygments definitions
+\makeatletter
+\def\PY@reset{\let\PY@it=\relax \let\PY@bf=\relax%
+    \let\PY@ul=\relax \let\PY@tc=\relax%
+    \let\PY@bc=\relax \let\PY@ff=\relax}
+\def\PY@tok#1{\csname PY@tok@#1\endcsname}
+\def\PY@toks#1+{\ifx\relax#1\empty\else%
+    \PY@tok{#1}\expandafter\PY@toks\fi}
+\def\PY@do#1{\PY@bc{\PY@tc{\PY@ul{%
+    \PY@it{\PY@bf{\PY@ff{#1}}}}}}}
+\def\PY#1#2{\PY@reset\PY@toks#1+\relax+\PY@do{#2}}
+
+\@namedef{PY@tok@w}{\def\PY@tc##1{\textcolor[rgb]{0.73,0.73,0.73}{##1}}}
+\@namedef{PY@tok@c}{\let\PY@it=\textit\def\PY@tc##1{\textcolor[rgb]{0.25,0.50,0.50}{##1}}}
+\@namedef{PY@tok@cp}{\def\PY@tc##1{\textcolor[rgb]{0.74,0.48,0.00}{##1}}}
+\@namedef{PY@tok@k}{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.00,0.50,0.00}{##1}}}
+\@namedef{PY@tok@kp}{\def\PY@tc##1{\textcolor[rgb]{0.00,0.50,0.00}{##1}}}
+\@namedef{PY@tok@kt}{\def\PY@tc##1{\textcolor[rgb]{0.69,0.00,0.25}{##1}}}
+\@namedef{PY@tok@o}{\def\PY@tc##1{\textcolor[rgb]{0.40,0.40,0.40}{##1}}}
+\@namedef{PY@tok@ow}{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.67,0.13,1.00}{##1}}}
+\@namedef{PY@tok@nb}{\def\PY@tc##1{\textcolor[rgb]{0.00,0.50,0.00}{##1}}}
+\@namedef{PY@tok@nf}{\def\PY@tc##1{\textcolor[rgb]{0.00,0.00,1.00}{##1}}}
+\@namedef{PY@tok@nc}{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.00,0.00,1.00}{##1}}}
+\@namedef{PY@tok@nn}{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.00,0.00,1.00}{##1}}}
+\@namedef{PY@tok@ne}{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.82,0.25,0.23}{##1}}}
+\@namedef{PY@tok@nv}{\def\PY@tc##1{\textcolor[rgb]{0.10,0.09,0.49}{##1}}}
+\@namedef{PY@tok@no}{\def\PY@tc##1{\textcolor[rgb]{0.53,0.00,0.00}{##1}}}
+\@namedef{PY@tok@nl}{\def\PY@tc##1{\textcolor[rgb]{0.63,0.63,0.00}{##1}}}
+\@namedef{PY@tok@ni}{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.60,0.60,0.60}{##1}}}
+\@namedef{PY@tok@na}{\def\PY@tc##1{\textcolor[rgb]{0.49,0.56,0.16}{##1}}}
+\@namedef{PY@tok@nt}{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.00,0.50,0.00}{##1}}}
+\@namedef{PY@tok@nd}{\def\PY@tc##1{\textcolor[rgb]{0.67,0.13,1.00}{##1}}}
+\@namedef{PY@tok@s}{\def\PY@tc##1{\textcolor[rgb]{0.73,0.13,0.13}{##1}}}
+\@namedef{PY@tok@sd}{\let\PY@it=\textit\def\PY@tc##1{\textcolor[rgb]{0.73,0.13,0.13}{##1}}}
+\@namedef{PY@tok@si}{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.73,0.40,0.53}{##1}}}
+\@namedef{PY@tok@se}{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.73,0.40,0.13}{##1}}}
+\@namedef{PY@tok@sr}{\def\PY@tc##1{\textcolor[rgb]{0.73,0.40,0.53}{##1}}}
+\@namedef{PY@tok@ss}{\def\PY@tc##1{\textcolor[rgb]{0.10,0.09,0.49}{##1}}}
+\@namedef{PY@tok@sx}{\def\PY@tc##1{\textcolor[rgb]{0.00,0.50,0.00}{##1}}}
+\@namedef{PY@tok@m}{\def\PY@tc##1{\textcolor[rgb]{0.40,0.40,0.40}{##1}}}
+\@namedef{PY@tok@gh}{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.00,0.00,0.50}{##1}}}
+\@namedef{PY@tok@gu}{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.50,0.00,0.50}{##1}}}
+\@namedef{PY@tok@gd}{\def\PY@tc##1{\textcolor[rgb]{0.63,0.00,0.00}{##1}}}
+\@namedef{PY@tok@gi}{\def\PY@tc##1{\textcolor[rgb]{0.00,0.63,0.00}{##1}}}
+\@namedef{PY@tok@gr}{\def\PY@tc##1{\textcolor[rgb]{1.00,0.00,0.00}{##1}}}
+\@namedef{PY@tok@ge}{\let\PY@it=\textit}
+\@namedef{PY@tok@gs}{\let\PY@bf=\textbf}
+\@namedef{PY@tok@gp}{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.00,0.00,0.50}{##1}}}
+\@namedef{PY@tok@go}{\def\PY@tc##1{\textcolor[rgb]{0.53,0.53,0.53}{##1}}}
+\@namedef{PY@tok@gt}{\def\PY@tc##1{\textcolor[rgb]{0.00,0.27,0.87}{##1}}}
+\@namedef{PY@tok@err}{\def\PY@bc##1{{\setlength{\fboxsep}{\string -\fboxrule}\fcolorbox[rgb]{1.00,0.00,0.00}{1,1,1}{\strut ##1}}}}
+\@namedef{PY@tok@kc}{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.00,0.50,0.00}{##1}}}
+\@namedef{PY@tok@kd}{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.00,0.50,0.00}{##1}}}
+\@namedef{PY@tok@kn}{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.00,0.50,0.00}{##1}}}
+\@namedef{PY@tok@kr}{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.00,0.50,0.00}{##1}}}
+\@namedef{PY@tok@bp}{\def\PY@tc##1{\textcolor[rgb]{0.00,0.50,0.00}{##1}}}
+\@namedef{PY@tok@fm}{\def\PY@tc##1{\textcolor[rgb]{0.00,0.00,1.00}{##1}}}
+\@namedef{PY@tok@vc}{\def\PY@tc##1{\textcolor[rgb]{0.10,0.09,0.49}{##1}}}
+\@namedef{PY@tok@vg}{\def\PY@tc##1{\textcolor[rgb]{0.10,0.09,0.49}{##1}}}
+\@namedef{PY@tok@vi}{\def\PY@tc##1{\textcolor[rgb]{0.10,0.09,0.49}{##1}}}
+\@namedef{PY@tok@vm}{\def\PY@tc##1{\textcolor[rgb]{0.10,0.09,0.49}{##1}}}
+\@namedef{PY@tok@sa}{\def\PY@tc##1{\textcolor[rgb]{0.73,0.13,0.13}{##1}}}
+\@namedef{PY@tok@sb}{\def\PY@tc##1{\textcolor[rgb]{0.73,0.13,0.13}{##1}}}
+\@namedef{PY@tok@sc}{\def\PY@tc##1{\textcolor[rgb]{0.73,0.13,0.13}{##1}}}
+\@namedef{PY@tok@dl}{\def\PY@tc##1{\textcolor[rgb]{0.73,0.13,0.13}{##1}}}
+\@namedef{PY@tok@s2}{\def\PY@tc##1{\textcolor[rgb]{0.73,0.13,0.13}{##1}}}
+\@namedef{PY@tok@sh}{\def\PY@tc##1{\textcolor[rgb]{0.73,0.13,0.13}{##1}}}
+\@namedef{PY@tok@s1}{\def\PY@tc##1{\textcolor[rgb]{0.73,0.13,0.13}{##1}}}
+\@namedef{PY@tok@mb}{\def\PY@tc##1{\textcolor[rgb]{0.40,0.40,0.40}{##1}}}
+\@namedef{PY@tok@mf}{\def\PY@tc##1{\textcolor[rgb]{0.40,0.40,0.40}{##1}}}
+\@namedef{PY@tok@mh}{\def\PY@tc##1{\textcolor[rgb]{0.40,0.40,0.40}{##1}}}
+\@namedef{PY@tok@mi}{\def\PY@tc##1{\textcolor[rgb]{0.40,0.40,0.40}{##1}}}
+\@namedef{PY@tok@il}{\def\PY@tc##1{\textcolor[rgb]{0.40,0.40,0.40}{##1}}}
+\@namedef{PY@tok@mo}{\def\PY@tc##1{\textcolor[rgb]{0.40,0.40,0.40}{##1}}}
+\@namedef{PY@tok@ch}{\let\PY@it=\textit\def\PY@tc##1{\textcolor[rgb]{0.25,0.50,0.50}{##1}}}
+\@namedef{PY@tok@cm}{\let\PY@it=\textit\def\PY@tc##1{\textcolor[rgb]{0.25,0.50,0.50}{##1}}}
+\@namedef{PY@tok@cpf}{\let\PY@it=\textit\def\PY@tc##1{\textcolor[rgb]{0.25,0.50,0.50}{##1}}}
+\@namedef{PY@tok@c1}{\let\PY@it=\textit\def\PY@tc##1{\textcolor[rgb]{0.25,0.50,0.50}{##1}}}
+\@namedef{PY@tok@cs}{\let\PY@it=\textit\def\PY@tc##1{\textcolor[rgb]{0.25,0.50,0.50}{##1}}}
+
+\def\PYZbs{\char`\\}
+\def\PYZus{\char`\_}
+\def\PYZob{\char`\{}
+\def\PYZcb{\char`\}}
+\def\PYZca{\char`\^}
+\def\PYZam{\char`\&}
+\def\PYZlt{\char`\<}
+\def\PYZgt{\char`\>}
+\def\PYZsh{\char`\#}
+\def\PYZpc{\char`\%}
+\def\PYZdl{\char`\$}
+\def\PYZhy{\char`\-}
+\def\PYZsq{\char`\'}
+\def\PYZdq{\char`\"}
+\def\PYZti{\char`\~}
+% for compatibility with earlier versions
+\def\PYZat{@}
+\def\PYZlb{[}
+\def\PYZrb{]}
+\makeatother
+
+
+    % For linebreaks inside Verbatim environment from package fancyvrb. 
+    \makeatletter
+        \newbox\Wrappedcontinuationbox 
+        \newbox\Wrappedvisiblespacebox 
+        \newcommand*\Wrappedvisiblespace {\textcolor{red}{\textvisiblespace}} 
+        \newcommand*\Wrappedcontinuationsymbol {\textcolor{red}{\llap{\tiny$\m@th\hookrightarrow$}}} 
+        \newcommand*\Wrappedcontinuationindent {3ex } 
+        \newcommand*\Wrappedafterbreak {\kern\Wrappedcontinuationindent\copy\Wrappedcontinuationbox} 
+        % Take advantage of the already applied Pygments mark-up to insert 
+        % potential linebreaks for TeX processing. 
+        %        {, <, #, %, $, ' and ": go to next line. 
+        %        _, }, ^, &, >, - and ~: stay at end of broken line. 
+        % Use of \textquotesingle for straight quote. 
+        \newcommand*\Wrappedbreaksatspecials {% 
+            \def\PYGZus{\discretionary{\char`\_}{\Wrappedafterbreak}{\char`\_}}% 
+            \def\PYGZob{\discretionary{}{\Wrappedafterbreak\char`\{}{\char`\{}}% 
+            \def\PYGZcb{\discretionary{\char`\}}{\Wrappedafterbreak}{\char`\}}}% 
+            \def\PYGZca{\discretionary{\char`\^}{\Wrappedafterbreak}{\char`\^}}% 
+            \def\PYGZam{\discretionary{\char`\&}{\Wrappedafterbreak}{\char`\&}}% 
+            \def\PYGZlt{\discretionary{}{\Wrappedafterbreak\char`\<}{\char`\<}}% 
+            \def\PYGZgt{\discretionary{\char`\>}{\Wrappedafterbreak}{\char`\>}}% 
+            \def\PYGZsh{\discretionary{}{\Wrappedafterbreak\char`\#}{\char`\#}}% 
+            \def\PYGZpc{\discretionary{}{\Wrappedafterbreak\char`\%}{\char`\%}}% 
+            \def\PYGZdl{\discretionary{}{\Wrappedafterbreak\char`\$}{\char`\$}}% 
+            \def\PYGZhy{\discretionary{\char`\-}{\Wrappedafterbreak}{\char`\-}}% 
+            \def\PYGZsq{\discretionary{}{\Wrappedafterbreak\textquotesingle}{\textquotesingle}}% 
+            \def\PYGZdq{\discretionary{}{\Wrappedafterbreak\char`\"}{\char`\"}}% 
+            \def\PYGZti{\discretionary{\char`\~}{\Wrappedafterbreak}{\char`\~}}% 
+        } 
+        % Some characters . , ; ? ! / are not pygmentized. 
+        % This macro makes them "active" and they will insert potential linebreaks 
+        \newcommand*\Wrappedbreaksatpunct {% 
+            \lccode`\~`\.\lowercase{\def~}{\discretionary{\hbox{\char`\.}}{\Wrappedafterbreak}{\hbox{\char`\.}}}% 
+            \lccode`\~`\,\lowercase{\def~}{\discretionary{\hbox{\char`\,}}{\Wrappedafterbreak}{\hbox{\char`\,}}}% 
+            \lccode`\~`\;\lowercase{\def~}{\discretionary{\hbox{\char`\;}}{\Wrappedafterbreak}{\hbox{\char`\;}}}% 
+            \lccode`\~`\:\lowercase{\def~}{\discretionary{\hbox{\char`\:}}{\Wrappedafterbreak}{\hbox{\char`\:}}}% 
+            \lccode`\~`\?\lowercase{\def~}{\discretionary{\hbox{\char`\?}}{\Wrappedafterbreak}{\hbox{\char`\?}}}% 
+            \lccode`\~`\!\lowercase{\def~}{\discretionary{\hbox{\char`\!}}{\Wrappedafterbreak}{\hbox{\char`\!}}}% 
+            \lccode`\~`\/\lowercase{\def~}{\discretionary{\hbox{\char`\/}}{\Wrappedafterbreak}{\hbox{\char`\/}}}% 
+            \catcode`\.\active
+            \catcode`\,\active 
+            \catcode`\;\active
+            \catcode`\:\active
+            \catcode`\?\active
+            \catcode`\!\active
+            \catcode`\/\active 
+            \lccode`\~`\~ 	
+        }
+    \makeatother
+
+    \let\OriginalVerbatim=\Verbatim
+    \makeatletter
+    \renewcommand{\Verbatim}[1][1]{%
+        %\parskip\z@skip
+        \sbox\Wrappedcontinuationbox {\Wrappedcontinuationsymbol}%
+        \sbox\Wrappedvisiblespacebox {\FV@SetupFont\Wrappedvisiblespace}%
+        \def\FancyVerbFormatLine ##1{\hsize\linewidth
+            \vtop{\raggedright\hyphenpenalty\z@\exhyphenpenalty\z@
+                \doublehyphendemerits\z@\finalhyphendemerits\z@
+                \strut ##1\strut}%
+        }%
+        % If the linebreak is at a space, the latter will be displayed as visible
+        % space at end of first line, and a continuation symbol starts next line.
+        % Stretch/shrink are however usually zero for typewriter font.
+        \def\FV@Space {%
+            \nobreak\hskip\z@ plus\fontdimen3\font minus\fontdimen4\font
+            \discretionary{\copy\Wrappedvisiblespacebox}{\Wrappedafterbreak}
+            {\kern\fontdimen2\font}%
+        }%
+        
+        % Allow breaks at special characters using \PYG... macros.
+        \Wrappedbreaksatspecials
+        % Breaks at punctuation characters . , ; ? ! and / need catcode=\active 	
+        \OriginalVerbatim[#1,codes*=\Wrappedbreaksatpunct]%
+    }
+    \makeatother
+
+    % Exact colors from NB
+    \definecolor{incolor}{HTML}{303F9F}
+    \definecolor{outcolor}{HTML}{D84315}
+    \definecolor{cellborder}{HTML}{CFCFCF}
+    \definecolor{cellbackground}{HTML}{F7F7F7}
+    
+    % prompt
+    \makeatletter
+    \newcommand{\boxspacing}{\kern\kvtcb@left@rule\kern\kvtcb@boxsep}
+    \makeatother
+    \newcommand{\prompt}[4]{
+        \ttfamily\llap{{\color{#2}[#3]:\hspace{3pt}#4}}\vspace{-\baselineskip}
+    }
+    
+
+    
+    % Prevent overflowing lines due to hard-to-break entities
+    \sloppy 
+    % Setup hyperref package
+    \hypersetup{
+      breaklinks=true,  % so long urls are correctly broken across lines
+      colorlinks=true,
+      urlcolor=urlcolor,
+      linkcolor=linkcolor,
+      citecolor=citecolor,
+      }
+    % Slightly bigger margins than the latex defaults
+    
+    \geometry{verbose,tmargin=1in,bmargin=1in,lmargin=1in,rmargin=1in}
+    
+    
+
+\begin{document}
+    
+    \maketitle
+    
+    
+
+    
+    \hypertarget{data-science-research-methods-report-2}{%
+\section{Data Science research Methods
+Report-2}\label{data-science-research-methods-report-2}}
+
+    \hypertarget{introduction}{%
+\subsection{\texorpdfstring{\textbf{Introduction}}{Introduction }}\label{introduction}}
+
+The PAMAP2 Physical Activity Monitoring dataset (available here)
+contains data from 9 participants who participated in 18 various
+physical activities (such as walking, cycling, and soccer) while wearing
+three inertial measurement units (IMUs) and a heart rate monitor. This
+information is saved in separate text files for each subject. The goal
+is to build hardware and/or software that can determine the amount and
+type of physical activity performed by an individual by using insights
+derived from analysing the given dataset.\nocite{farnam_street_2019}
+
+    
+
+    \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+\prompt{In}{incolor}{81}{\boxspacing}
+\begin{Verbatim}[commandchars=\\\{\}]
+\PY{k+kn}{import} \PY{n+nn}{os}
+\PY{k+kn}{from} \PY{n+nn}{IPython}\PY{n+nn}{.}\PY{n+nn}{display} \PY{k+kn}{import} \PY{n}{display}
+\PY{k+kn}{from} \PY{n+nn}{matplotlib} \PY{k+kn}{import} \PY{n}{rcParams}
+\PY{k+kn}{import} \PY{n+nn}{numpy} \PY{k}{as} \PY{n+nn}{np}
+\PY{k+kn}{import} \PY{n+nn}{seaborn} \PY{k}{as} \PY{n+nn}{sns}
+\PY{n}{os}\PY{o}{.}\PY{n}{chdir}\PY{p}{(}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{/home/sahil/Downloads/PAMAP2\PYZus{}Dataset/Protocol}\PY{l+s+s2}{\PYZdq{}}\PY{p}{)}
+\PY{k+kn}{import} \PY{n+nn}{pandas} \PY{k}{as} \PY{n+nn}{pd}
+\PY{k+kn}{import} \PY{n+nn}{matplotlib}\PY{n+nn}{.}\PY{n+nn}{pyplot} \PY{k}{as} \PY{n+nn}{plt}
+\end{Verbatim}
+\end{tcolorbox}
+
+    \hypertarget{data-cleaning}{%
+\subsection{\texorpdfstring{Data
+Cleaning}{Data Cleaning }}\label{data-cleaning}}
+
+For tidying up the data : - We load the data of various subjects and
+give relevant column names for various features. - The data for all
+subjects are then stacked together to form one table. - We remove the
+`Orientation' columns because it was mentioned in the data report that
+it is invalid in this data collection. - Similarly, the rows with
+Activity ID ``0'' are also removed as it does not relate to any specific
+activity. - The missing values are filled up using the mean for that
+feature.
+
+    Given below are functions to give relevant names to the columns and
+create a single table containing data for all subjects
+
+    \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+\prompt{In}{incolor}{82}{\boxspacing}
+\begin{Verbatim}[commandchars=\\\{\}]
+\PY{k}{def} \PY{n+nf}{gen\PYZus{}activity\PYZus{}names}\PY{p}{(}\PY{p}{)}\PY{p}{:}
+    \PY{c+c1}{\PYZsh{} Using this function all the activity names are mapped to their ids}
+    \PY{n}{act\PYZus{}name} \PY{o}{=} \PY{p}{\PYZob{}}\PY{p}{\PYZcb{}}
+    \PY{n}{act\PYZus{}name}\PY{p}{[}\PY{l+m+mi}{0}\PY{p}{]} \PY{o}{=} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{transient}\PY{l+s+s1}{\PYZsq{}}
+    \PY{n}{act\PYZus{}name}\PY{p}{[}\PY{l+m+mi}{1}\PY{p}{]} \PY{o}{=} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{lying}\PY{l+s+s1}{\PYZsq{}}
+    \PY{n}{act\PYZus{}name}\PY{p}{[}\PY{l+m+mi}{2}\PY{p}{]} \PY{o}{=} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{sitting}\PY{l+s+s1}{\PYZsq{}}
+    \PY{n}{act\PYZus{}name}\PY{p}{[}\PY{l+m+mi}{3}\PY{p}{]} \PY{o}{=} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{standing}\PY{l+s+s1}{\PYZsq{}}
+    \PY{n}{act\PYZus{}name}\PY{p}{[}\PY{l+m+mi}{4}\PY{p}{]} \PY{o}{=} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{walking}\PY{l+s+s1}{\PYZsq{}}
+    \PY{n}{act\PYZus{}name}\PY{p}{[}\PY{l+m+mi}{5}\PY{p}{]} \PY{o}{=} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{running}\PY{l+s+s1}{\PYZsq{}}
+    \PY{n}{act\PYZus{}name}\PY{p}{[}\PY{l+m+mi}{6}\PY{p}{]} \PY{o}{=} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{cycling}\PY{l+s+s1}{\PYZsq{}}
+    \PY{n}{act\PYZus{}name}\PY{p}{[}\PY{l+m+mi}{7}\PY{p}{]} \PY{o}{=} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{Nordic\PYZus{}walking}\PY{l+s+s1}{\PYZsq{}}
+    \PY{n}{act\PYZus{}name}\PY{p}{[}\PY{l+m+mi}{9}\PY{p}{]} \PY{o}{=} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{watching\PYZus{}TV}\PY{l+s+s1}{\PYZsq{}}
+    \PY{n}{act\PYZus{}name}\PY{p}{[}\PY{l+m+mi}{10}\PY{p}{]} \PY{o}{=} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{computer\PYZus{}work}\PY{l+s+s1}{\PYZsq{}}
+    \PY{n}{act\PYZus{}name}\PY{p}{[}\PY{l+m+mi}{11}\PY{p}{]} \PY{o}{=} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{car driving}\PY{l+s+s1}{\PYZsq{}}
+    \PY{n}{act\PYZus{}name}\PY{p}{[}\PY{l+m+mi}{12}\PY{p}{]} \PY{o}{=} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{ascending\PYZus{}stairs}\PY{l+s+s1}{\PYZsq{}}
+    \PY{n}{act\PYZus{}name}\PY{p}{[}\PY{l+m+mi}{13}\PY{p}{]} \PY{o}{=} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{descending\PYZus{}stairs}\PY{l+s+s1}{\PYZsq{}}
+    \PY{n}{act\PYZus{}name}\PY{p}{[}\PY{l+m+mi}{16}\PY{p}{]} \PY{o}{=} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{vacuum\PYZus{}cleaning}\PY{l+s+s1}{\PYZsq{}}
+    \PY{n}{act\PYZus{}name}\PY{p}{[}\PY{l+m+mi}{17}\PY{p}{]} \PY{o}{=} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{ironing}\PY{l+s+s1}{\PYZsq{}}
+    \PY{n}{act\PYZus{}name}\PY{p}{[}\PY{l+m+mi}{18}\PY{p}{]} \PY{o}{=} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{folding\PYZus{}laundry}\PY{l+s+s1}{\PYZsq{}}
+    \PY{n}{act\PYZus{}name}\PY{p}{[}\PY{l+m+mi}{19}\PY{p}{]} \PY{o}{=} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{house\PYZus{}cleaning}\PY{l+s+s1}{\PYZsq{}}
+    \PY{n}{act\PYZus{}name}\PY{p}{[}\PY{l+m+mi}{20}\PY{p}{]} \PY{o}{=} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{playing\PYZus{}soccer}\PY{l+s+s1}{\PYZsq{}}
+    \PY{n}{act\PYZus{}name}\PY{p}{[}\PY{l+m+mi}{24}\PY{p}{]} \PY{o}{=} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{rope\PYZus{}jumping}\PY{l+s+s1}{\PYZsq{}}
+    \PY{k}{return} \PY{n}{act\PYZus{}name}
+\PY{k}{def} \PY{n+nf}{generate\PYZus{}three\PYZus{}IMU}\PY{p}{(}\PY{n}{name}\PY{p}{)}\PY{p}{:}
+    \PY{n}{x} \PY{o}{=} \PY{n}{name} \PY{o}{+}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{\PYZus{}x}\PY{l+s+s1}{\PYZsq{}}
+    \PY{n}{y} \PY{o}{=} \PY{n}{name} \PY{o}{+}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{\PYZus{}y}\PY{l+s+s1}{\PYZsq{}}
+    \PY{n}{z} \PY{o}{=} \PY{n}{name} \PY{o}{+}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{\PYZus{}z}\PY{l+s+s1}{\PYZsq{}}
+    \PY{k}{return} \PY{p}{[}\PY{n}{x}\PY{p}{,}\PY{n}{y}\PY{p}{,}\PY{n}{z}\PY{p}{]}
+\PY{k}{def} \PY{n+nf}{generate\PYZus{}four\PYZus{}IMU}\PY{p}{(}\PY{n}{name}\PY{p}{)}\PY{p}{:}
+    \PY{n}{x} \PY{o}{=} \PY{n}{name} \PY{o}{+}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{\PYZus{}x}\PY{l+s+s1}{\PYZsq{}}
+    \PY{n}{y} \PY{o}{=} \PY{n}{name} \PY{o}{+}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{\PYZus{}y}\PY{l+s+s1}{\PYZsq{}}
+    \PY{n}{z} \PY{o}{=} \PY{n}{name} \PY{o}{+}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{\PYZus{}z}\PY{l+s+s1}{\PYZsq{}}
+    \PY{n}{w} \PY{o}{=} \PY{n}{name} \PY{o}{+}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{\PYZus{}w}\PY{l+s+s1}{\PYZsq{}}
+    \PY{k}{return} \PY{p}{[}\PY{n}{x}\PY{p}{,}\PY{n}{y}\PY{p}{,}\PY{n}{z}\PY{p}{,}\PY{n}{w}\PY{p}{]}
+\PY{k}{def} \PY{n+nf}{generate\PYZus{}cols\PYZus{}IMU}\PY{p}{(}\PY{n}{name}\PY{p}{)}\PY{p}{:}
+    \PY{c+c1}{\PYZsh{} temp}
+    \PY{n}{temp} \PY{o}{=} \PY{n}{name}\PY{o}{+}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{\PYZus{}temperature}\PY{l+s+s1}{\PYZsq{}}
+    \PY{n}{output} \PY{o}{=} \PY{p}{[}\PY{n}{temp}\PY{p}{]}
+    \PY{c+c1}{\PYZsh{} acceleration 16}
+    \PY{n}{acceleration16} \PY{o}{=} \PY{n}{name}\PY{o}{+}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{\PYZus{}3D\PYZus{}acceleration\PYZus{}16}\PY{l+s+s1}{\PYZsq{}}
+    \PY{n}{acceleration16} \PY{o}{=} \PY{n}{generate\PYZus{}three\PYZus{}IMU}\PY{p}{(}\PY{n}{acceleration16}\PY{p}{)}
+    \PY{n}{output}\PY{o}{.}\PY{n}{extend}\PY{p}{(}\PY{n}{acceleration16}\PY{p}{)}
+    \PY{c+c1}{\PYZsh{} acceleration 6}
+    \PY{n}{acceleration6} \PY{o}{=} \PY{n}{name}\PY{o}{+}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{\PYZus{}3D\PYZus{}acceleration\PYZus{}6}\PY{l+s+s1}{\PYZsq{}}
+    \PY{n}{acceleration6} \PY{o}{=} \PY{n}{generate\PYZus{}three\PYZus{}IMU}\PY{p}{(}\PY{n}{acceleration6}\PY{p}{)}
+    \PY{n}{output}\PY{o}{.}\PY{n}{extend}\PY{p}{(}\PY{n}{acceleration6}\PY{p}{)}
+    \PY{c+c1}{\PYZsh{} gyroscope}
+    \PY{n}{gyroscope} \PY{o}{=} \PY{n}{name}\PY{o}{+}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{\PYZus{}3D\PYZus{}gyroscope}\PY{l+s+s1}{\PYZsq{}}
+    \PY{n}{gyroscope} \PY{o}{=} \PY{n}{generate\PYZus{}three\PYZus{}IMU}\PY{p}{(}\PY{n}{gyroscope}\PY{p}{)}
+    \PY{n}{output}\PY{o}{.}\PY{n}{extend}\PY{p}{(}\PY{n}{gyroscope}\PY{p}{)}
+    \PY{c+c1}{\PYZsh{} magnometer}
+    \PY{n}{magnometer} \PY{o}{=} \PY{n}{name}\PY{o}{+}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{\PYZus{}3D\PYZus{}magnetometer}\PY{l+s+s1}{\PYZsq{}}
+    \PY{n}{magnometer} \PY{o}{=} \PY{n}{generate\PYZus{}three\PYZus{}IMU}\PY{p}{(}\PY{n}{magnometer}\PY{p}{)}
+    \PY{n}{output}\PY{o}{.}\PY{n}{extend}\PY{p}{(}\PY{n}{magnometer}\PY{p}{)}
+    \PY{c+c1}{\PYZsh{} oreintation}
+    \PY{n}{oreintation} \PY{o}{=} \PY{n}{name}\PY{o}{+}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{\PYZus{}4D\PYZus{}orientation}\PY{l+s+s1}{\PYZsq{}}
+    \PY{n}{oreintation} \PY{o}{=} \PY{n}{generate\PYZus{}four\PYZus{}IMU}\PY{p}{(}\PY{n}{oreintation}\PY{p}{)}
+    \PY{n}{output}\PY{o}{.}\PY{n}{extend}\PY{p}{(}\PY{n}{oreintation}\PY{p}{)}
+    \PY{k}{return} \PY{n}{output}
+\PY{k}{def} \PY{n+nf}{load\PYZus{}IMU}\PY{p}{(}\PY{p}{)}\PY{p}{:}
+    \PY{n}{output} \PY{o}{=} \PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{time\PYZus{}stamp}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{activity\PYZus{}id}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{heart\PYZus{}rate}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}
+    \PY{n}{hand} \PY{o}{=} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{hand}\PY{l+s+s1}{\PYZsq{}}
+    \PY{n}{hand} \PY{o}{=} \PY{n}{generate\PYZus{}cols\PYZus{}IMU}\PY{p}{(}\PY{n}{hand}\PY{p}{)}
+    \PY{n}{output}\PY{o}{.}\PY{n}{extend}\PY{p}{(}\PY{n}{hand}\PY{p}{)}
+    \PY{n}{chest} \PY{o}{=} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{chest}\PY{l+s+s1}{\PYZsq{}}
+    \PY{n}{chest} \PY{o}{=} \PY{n}{generate\PYZus{}cols\PYZus{}IMU}\PY{p}{(}\PY{n}{chest}\PY{p}{)}
+    \PY{n}{output}\PY{o}{.}\PY{n}{extend}\PY{p}{(}\PY{n}{chest}\PY{p}{)}
+    \PY{n}{ankle} \PY{o}{=} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{ankle}\PY{l+s+s1}{\PYZsq{}}
+    \PY{n}{ankle} \PY{o}{=} \PY{n}{generate\PYZus{}cols\PYZus{}IMU}\PY{p}{(}\PY{n}{ankle}\PY{p}{)}
+    \PY{n}{output}\PY{o}{.}\PY{n}{extend}\PY{p}{(}\PY{n}{ankle}\PY{p}{)}
+    \PY{k}{return} \PY{n}{output}
+\PY{k}{def} \PY{n+nf}{load\PYZus{}subjects}\PY{p}{(}\PY{n}{root}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{/home/sahil/Downloads/PAMAP2\PYZus{}Dataset/Protocol/subject}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}\PY{p}{:}
+    \PY{n}{output} \PY{o}{=} \PY{n}{pd}\PY{o}{.}\PY{n}{DataFrame}\PY{p}{(}\PY{p}{)}
+    \PY{n}{cols} \PY{o}{=} \PY{n}{load\PYZus{}IMU}\PY{p}{(}\PY{p}{)}
+    
+    \PY{k}{for} \PY{n}{i} \PY{o+ow}{in} \PY{n+nb}{range}\PY{p}{(}\PY{l+m+mi}{101}\PY{p}{,}\PY{l+m+mi}{110}\PY{p}{,}\PY{l+m+mi}{2}\PY{p}{)}\PY{p}{:}
+        \PY{n}{path} \PY{o}{=} \PY{n}{root} \PY{o}{+} \PY{n+nb}{str}\PY{p}{(}\PY{n}{i}\PY{p}{)} \PY{o}{+}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{.dat}\PY{l+s+s1}{\PYZsq{}}
+        \PY{n}{subject} \PY{o}{=} \PY{n}{pd}\PY{o}{.}\PY{n}{read\PYZus{}table}\PY{p}{(}\PY{n}{path}\PY{p}{,} \PY{n}{header}\PY{o}{=}\PY{k+kc}{None}\PY{p}{,} \PY{n}{sep}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{\PYZbs{}}\PY{l+s+s1}{s+}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}
+        \PY{n}{subject}\PY{o}{.}\PY{n}{columns} \PY{o}{=} \PY{n}{cols} 
+        \PY{n}{subject}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{id}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]} \PY{o}{=} \PY{n}{i}
+        \PY{n}{output} \PY{o}{=} \PY{n}{output}\PY{o}{.}\PY{n}{append}\PY{p}{(}\PY{n}{subject}\PY{p}{,} \PY{n}{ignore\PYZus{}index}\PY{o}{=}\PY{k+kc}{True}\PY{p}{)}
+    \PY{n}{output}\PY{o}{.}\PY{n}{reset\PYZus{}index}\PY{p}{(}\PY{n}{drop}\PY{o}{=}\PY{k+kc}{True}\PY{p}{,} \PY{n}{inplace}\PY{o}{=}\PY{k+kc}{True}\PY{p}{)}
+    \PY{k}{return} \PY{n}{output}
+\PY{n}{data} \PY{o}{=} \PY{n}{load\PYZus{}subjects}\PY{p}{(}\PY{p}{)}\PY{c+c1}{\PYZsh{} Add your own location for the data here to replicate the code}
+\PY{c+c1}{\PYZsh{} for eg data = load\PYZus{}subjects(\PYZsq{}filepath\PYZsq{})}
+\PY{n}{data} \PY{o}{=} \PY{n}{data}\PY{o}{.}\PY{n}{drop}\PY{p}{(}\PY{n}{data}\PY{p}{[}\PY{n}{data}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{activity\PYZus{}id}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{o}{==}\PY{l+m+mi}{0}\PY{p}{]}\PY{o}{.}\PY{n}{index}\PY{p}{)}\PY{c+c1}{\PYZsh{} Removing rows with activity id of 0}
+\PY{n}{act} \PY{o}{=} \PY{n}{gen\PYZus{}activity\PYZus{}names}\PY{p}{(}\PY{p}{)}
+\PY{n}{data}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{activity\PYZus{}name}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]} \PY{o}{=} \PY{n}{data}\PY{o}{.}\PY{n}{activity\PYZus{}id}\PY{o}{.}\PY{n}{apply}\PY{p}{(}\PY{k}{lambda} \PY{n}{x}\PY{p}{:}\PY{n}{act}\PY{p}{[}\PY{n}{x}\PY{p}{]}\PY{p}{)}
+\PY{n}{data} \PY{o}{=} \PY{n}{data}\PY{o}{.}\PY{n}{drop}\PY{p}{(}\PY{p}{[}\PY{n}{i} \PY{k}{for} \PY{n}{i} \PY{o+ow}{in} \PY{n}{data}\PY{o}{.}\PY{n}{columns} \PY{k}{if} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{orientation}\PY{l+s+s1}{\PYZsq{}} \PY{o+ow}{in} \PY{n}{i}\PY{p}{]}\PY{p}{,}\PY{n}{axis}\PY{o}{=}\PY{l+m+mi}{1}\PY{p}{)}\PY{c+c1}{\PYZsh{} Dropping Orientation }
+\PY{c+c1}{\PYZsh{} columns}
+\PY{n}{display}\PY{p}{(}\PY{n}{data}\PY{o}{.}\PY{n}{head}\PY{p}{(}\PY{p}{)}\PY{p}{)}
+\end{Verbatim}
+\end{tcolorbox}
+
+    
+    \begin{verbatim}
+      time_stamp  activity_id  heart_rate  hand_temperature  \
+2928       37.66            1         NaN            30.375   
+2929       37.67            1         NaN            30.375   
+2930       37.68            1         NaN            30.375   
+2931       37.69            1         NaN            30.375   
+2932       37.70            1       100.0            30.375   
+
+      hand_3D_acceleration_16_x  hand_3D_acceleration_16_y  \
+2928                    2.21530                    8.27915   
+2929                    2.29196                    7.67288   
+2930                    2.29090                    7.14240   
+2931                    2.21800                    7.14365   
+2932                    2.30106                    7.25857   
+
+      hand_3D_acceleration_16_z  hand_3D_acceleration_6_x  \
+2928                    5.58753                   2.24689   
+2929                    5.74467                   2.27373   
+2930                    5.82342                   2.26966   
+2931                    5.89930                   2.22177   
+2932                    6.09259                   2.20720   
+
+      hand_3D_acceleration_6_y  hand_3D_acceleration_6_z  ...  \
+2928                   8.55387                   5.77143  ...   
+2929                   8.14592                   5.78739  ...   
+2930                   7.66268                   5.78846  ...   
+2931                   7.25535                   5.88000  ...   
+2932                   7.24042                   5.95555  ...   
+
+      ankle_3D_acceleration_6_y  ankle_3D_acceleration_6_z  \
+2928                   -1.76757                   0.265761   
+2929                   -1.75247                   0.250816   
+2930                   -1.73721                   0.356632   
+2931                   -1.78264                   0.311453   
+2932                   -1.75240                   0.295902   
+
+      ankle_3D_gyroscope_x  ankle_3D_gyroscope_y  ankle_3D_gyroscope_z  \
+2928              0.002908             -0.027714              0.001752   
+2929              0.020882              0.000945              0.006007   
+2930             -0.035392             -0.052422             -0.004882   
+2931             -0.032514             -0.018844              0.026950   
+2932              0.001351             -0.048878             -0.006328   
+
+      ankle_3D_magnetometer_x  ankle_3D_magnetometer_y  \
+2928                 -61.1081                 -36.8636   
+2929                 -60.8916                 -36.3197   
+2930                 -60.3407                 -35.7842   
+2931                 -60.7646                 -37.1028   
+2932                 -60.2040                 -37.1225   
+
+      ankle_3D_magnetometer_z   id  activity_name  
+2928                 -58.3696  101          lying  
+2929                 -58.3656  101          lying  
+2930                 -58.6119  101          lying  
+2931                 -57.8799  101          lying  
+2932                 -57.8847  101          lying  
+
+[5 rows x 44 columns]
+    \end{verbatim}
+
+    
+    \textbf{Note}: The procedure to replace missing values using the feature
+mean is performed after hypothesis testing and EDA as filling up the
+missing values would lead to us getting incorrect sample sizes for
+hypotheses testing.For Hypotheses testing the blank rows of an attribute
+will simply be ignored.
+
+    \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+\prompt{In}{incolor}{83}{\boxspacing}
+\begin{Verbatim}[commandchars=\\\{\}]
+\PY{k}{def} \PY{n+nf}{clean\PYZus{}data}\PY{p}{(}\PY{n}{data}\PY{p}{)}\PY{p}{:} \PY{c+c1}{\PYZsh{} Function for extracting clean data}
+    \PY{c+c1}{\PYZsh{}data = data.interpolate()}
+    \PY{c+c1}{\PYZsh{} fill all the NaN values in a column with the mean values of the column}
+    \PY{k}{for} \PY{n}{colName} \PY{o+ow}{in} \PY{n}{data}\PY{o}{.}\PY{n}{columns}\PY{p}{:}
+        \PY{n}{data}\PY{p}{[}\PY{n}{colName}\PY{p}{]} \PY{o}{=} \PY{n}{data}\PY{p}{[}\PY{n}{colName}\PY{p}{]}\PY{o}{.}\PY{n}{fillna}\PY{p}{(}\PY{n}{data}\PY{p}{[}\PY{n}{colName}\PY{p}{]}\PY{o}{.}\PY{n}{mean}\PY{p}{(}\PY{p}{)}\PY{p}{)}
+    \PY{k}{return} \PY{n}{data}
+\end{Verbatim}
+\end{tcolorbox}
+
+    \hypertarget{exploratory-data-analysis}{%
+\subsection{\texorpdfstring{Exploratory Data
+Analysis}{Exploratory Data Analysis }}\label{exploratory-data-analysis}}
+
+After labeling the data appropriately, it is randomly split into
+training and testing sets. In the training set, we perform Exploratory
+Data Analysis and come up with potential hypotheses. We then test those
+hypotheses on the testing set. 60\% of data is used for training in this
+case(Exploratory data analysis) and the rest for testing
+
+    \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+\prompt{In}{incolor}{84}{\boxspacing}
+\begin{Verbatim}[commandchars=\\\{\}]
+\PY{k}{def} \PY{n+nf}{train\PYZus{}test\PYZus{}split}\PY{p}{(}\PY{n}{data}\PY{p}{,}\PY{n}{split\PYZus{}size}\PY{p}{)}\PY{p}{:}
+    \PY{n}{np}\PY{o}{.}\PY{n}{random}\PY{o}{.}\PY{n}{seed}\PY{p}{(}\PY{l+m+mi}{5}\PY{p}{)}
+    \PY{n}{msk} \PY{o}{=} \PY{n}{np}\PY{o}{.}\PY{n}{random}\PY{o}{.}\PY{n}{rand}\PY{p}{(}\PY{n+nb}{len}\PY{p}{(}\PY{n}{data}\PY{p}{)}\PY{p}{)} \PY{o}{\PYZlt{}} \PY{n}{split\PYZus{}size} \PY{c+c1}{\PYZsh{} This code implies 80\PYZpc{} of the values will be True}
+    \PY{n}{train} \PY{o}{=} \PY{n}{data}\PY{p}{[}\PY{n}{msk}\PY{p}{]} \PY{c+c1}{\PYZsh{} Generating training data}
+    \PY{n}{test} \PY{o}{=} \PY{n}{data}\PY{p}{[}\PY{o}{\PYZti{}}\PY{n}{msk}\PY{p}{]} \PY{c+c1}{\PYZsh{} generating testing data  }
+    \PY{k}{return} \PY{n}{train}\PY{p}{,}\PY{n}{test}
+\PY{n}{train}\PY{p}{,}\PY{n}{test} \PY{o}{=} \PY{n}{train\PYZus{}test\PYZus{}split}\PY{p}{(}\PY{n}{data}\PY{p}{,}\PY{l+m+mf}{0.55}\PY{p}{)}
+\end{Verbatim}
+\end{tcolorbox}
+
+    \hypertarget{data-visualizations}{%
+\subsubsection{Data Visualizations}\label{data-visualizations}}
+
+    \begin{itemize}
+\tightlist
+\item
+  Boxplot of heart rate grouped by activity
+\end{itemize}
+
+    \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+\prompt{In}{incolor}{85}{\boxspacing}
+\begin{Verbatim}[commandchars=\\\{\}]
+\PY{n}{rcParams}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{figure.figsize}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]} \PY{o}{=} \PY{l+m+mi}{40}\PY{p}{,}\PY{l+m+mi}{25} \PY{c+c1}{\PYZsh{} Setting the figure dimensions }
+\PY{n}{rcParams}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{font.size}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]} \PY{o}{=} \PY{l+m+mi}{35} \PY{c+c1}{\PYZsh{} Setting the text and number font size}
+\PY{n}{ax}\PY{o}{=}\PY{n}{sns}\PY{o}{.}\PY{n}{boxplot}\PY{p}{(}\PY{n}{x}\PY{o}{=}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{activity\PYZus{}name}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,}\PY{n}{y}\PY{o}{=}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{heart\PYZus{}rate}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,}\PY{n}{data}\PY{o}{=}\PY{n}{train}\PY{p}{)}
+\PY{n}{ax}\PY{o}{.}\PY{n}{set\PYZus{}xticklabels}\PY{p}{(}\PY{n}{ax}\PY{o}{.}\PY{n}{get\PYZus{}xticklabels}\PY{p}{(}\PY{p}{)}\PY{p}{,}\PY{n}{rotation}\PY{o}{=}\PY{l+m+mi}{45}\PY{p}{)}\PY{c+c1}{\PYZsh{} Rotating Text}
+\PY{n}{plt}\PY{o}{.}\PY{n}{show}\PY{p}{(}\PY{p}{)}
+\end{Verbatim}
+\end{tcolorbox}
+
+    \begin{center}
+    \adjustimage{max size={0.9\linewidth}{0.9\paperheight}}{trial_files/trial_13_0.png}
+    \end{center}
+    { \hspace*{\fill} \\}
+    
+    \begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  From the boxplot we can notice that activities like running and rope
+  jumping have higher average heart rate than other activities
+\item
+  `Nordic\_walking' and `running' have a lot of outliers on the lower
+  side
+\item
+  Activities like `lying',`sitting' and standing have a lot of outliers
+  on the upper side.
+\end{enumerate}
+
+    \begin{itemize}
+\tightlist
+\item
+  Boxplot of hand temperature grouped by activity
+\end{itemize}
+
+    \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+\prompt{In}{incolor}{86}{\boxspacing}
+\begin{Verbatim}[commandchars=\\\{\}]
+\PY{n}{ax}\PY{o}{=}\PY{n}{sns}\PY{o}{.}\PY{n}{boxplot}\PY{p}{(}\PY{n}{x}\PY{o}{=}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{activity\PYZus{}name}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,}\PY{n}{y}\PY{o}{=}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{hand\PYZus{}temperature}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,}\PY{n}{data}\PY{o}{=}\PY{n}{train}\PY{p}{)}
+\PY{n}{ax}\PY{o}{.}\PY{n}{set\PYZus{}xticklabels}\PY{p}{(}\PY{n}{ax}\PY{o}{.}\PY{n}{get\PYZus{}xticklabels}\PY{p}{(}\PY{p}{)}\PY{p}{,}\PY{n}{rotation}\PY{o}{=}\PY{l+m+mi}{45}\PY{p}{)}\PY{c+c1}{\PYZsh{} Rotating Text}
+\PY{n}{plt}\PY{o}{.}\PY{n}{show}\PY{p}{(}\PY{p}{)}
+\end{Verbatim}
+\end{tcolorbox}
+
+    \begin{center}
+    \adjustimage{max size={0.9\linewidth}{0.9\paperheight}}{trial_files/trial_16_0.png}
+    \end{center}
+    { \hspace*{\fill} \\}
+    
+    \begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  ``Ironing'' and ``vacuum\_cleaning'' may have higher average hand
+  temperatures compared to other activitiies
+\item
+  ``Lying'' and ``standing'' have outliers on the upper side while
+  ``ascending\_stairs'' has it on the lower side
+\end{enumerate}
+
+    \begin{itemize}
+\tightlist
+\item
+  Boxplot of ankle temperature grouped by activity
+\end{itemize}
+
+    \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+\prompt{In}{incolor}{87}{\boxspacing}
+\begin{Verbatim}[commandchars=\\\{\}]
+\PY{n}{ax}\PY{o}{=}\PY{n}{sns}\PY{o}{.}\PY{n}{boxplot}\PY{p}{(}\PY{n}{x}\PY{o}{=}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{activity\PYZus{}name}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,}\PY{n}{y}\PY{o}{=}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{ankle\PYZus{}temperature}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,}\PY{n}{data}\PY{o}{=}\PY{n}{train}\PY{p}{)}
+\PY{n}{ax}\PY{o}{.}\PY{n}{set\PYZus{}xticklabels}\PY{p}{(}\PY{n}{ax}\PY{o}{.}\PY{n}{get\PYZus{}xticklabels}\PY{p}{(}\PY{p}{)}\PY{p}{,}\PY{n}{rotation}\PY{o}{=}\PY{l+m+mi}{45}\PY{p}{)} \PY{c+c1}{\PYZsh{} Rotating Text}
+\PY{n}{plt}\PY{o}{.}\PY{n}{show}\PY{p}{(}\PY{p}{)}
+\end{Verbatim}
+\end{tcolorbox}
+
+    \begin{center}
+    \adjustimage{max size={0.9\linewidth}{0.9\paperheight}}{trial_files/trial_19_0.png}
+    \end{center}
+    { \hspace*{\fill} \\}
+    
+    \begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  Interestly, we see that ankle\_temperature might be lower on average
+  while lying.
+\item
+  Outliers are mostly present in ``rope\_jumping'' and
+  ``vacuum\_cleaning'' on the lower side.
+\end{enumerate}
+
+    \begin{itemize}
+\tightlist
+\item
+  Boxplot of chest temperature grouped by activity
+\end{itemize}
+
+    \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+\prompt{In}{incolor}{88}{\boxspacing}
+\begin{Verbatim}[commandchars=\\\{\}]
+\PY{n}{ax}\PY{o}{=}\PY{n}{sns}\PY{o}{.}\PY{n}{boxplot}\PY{p}{(}\PY{n}{x}\PY{o}{=}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{activity\PYZus{}name}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,}\PY{n}{y}\PY{o}{=}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{chest\PYZus{}temperature}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,}\PY{n}{data}\PY{o}{=}\PY{n}{train}\PY{p}{)}
+\PY{n}{ax}\PY{o}{.}\PY{n}{set\PYZus{}xticklabels}\PY{p}{(}\PY{n}{ax}\PY{o}{.}\PY{n}{get\PYZus{}xticklabels}\PY{p}{(}\PY{p}{)}\PY{p}{,}\PY{n}{rotation}\PY{o}{=}\PY{l+m+mi}{45}\PY{p}{)} \PY{c+c1}{\PYZsh{} Rotating Text}
+\PY{n}{plt}\PY{o}{.}\PY{n}{show}\PY{p}{(}\PY{p}{)}
+\end{Verbatim}
+\end{tcolorbox}
+
+    \begin{center}
+    \adjustimage{max size={0.9\linewidth}{0.9\paperheight}}{trial_files/trial_22_0.png}
+    \end{center}
+    { \hspace*{\fill} \\}
+    
+    \begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  Just like ankle temperature,the mean of chest temperature seems to be
+  lower while lying and even ``running'' seems to have lower average
+  although the data is more widely distributed.
+\item
+  The outliers are only present in ``lying'' and they are on the higher
+  side.
+\end{enumerate}
+
+    \begin{itemize}
+\tightlist
+\item
+  A joint plot trying to investigate possibility of correlation between
+  heart rate and chest temperature.
+\end{itemize}
+
+    \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+\prompt{In}{incolor}{89}{\boxspacing}
+\begin{Verbatim}[commandchars=\\\{\}]
+\PY{n}{plt}\PY{o}{.}\PY{n}{clf}\PY{p}{(}\PY{p}{)}
+\PY{n}{rcParams}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{font.size}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]} \PY{o}{=} \PY{l+m+mi}{20} \PY{c+c1}{\PYZsh{} Setting the text and number font size}
+\PY{n}{g} \PY{o}{=} \PY{n}{sns}\PY{o}{.}\PY{n}{JointGrid}\PY{p}{(}\PY{n}{data}\PY{o}{=}\PY{n}{train}\PY{p}{,} \PY{n}{x}\PY{o}{=}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{heart\PYZus{}rate}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,} \PY{n}{y}\PY{o}{=}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{chest\PYZus{}temperature}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,}
+                  \PY{n}{height}\PY{o}{=}\PY{l+m+mi}{10}\PY{p}{,}\PY{n}{ratio}\PY{o}{=}\PY{l+m+mi}{3}\PY{p}{)}
+\PY{n}{g}\PY{o}{.}\PY{n}{plot\PYZus{}joint}\PY{p}{(}\PY{n}{sns}\PY{o}{.}\PY{n}{scatterplot}\PY{p}{,}\PY{n}{palette}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{colorblind}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}
+\PY{n}{g}\PY{o}{.}\PY{n}{plot\PYZus{}marginals}\PY{p}{(}\PY{n}{sns}\PY{o}{.}\PY{n}{histplot}\PY{p}{)}
+\PY{c+c1}{\PYZsh{} ax.set\PYZus{}xticklabels(ax.get\PYZus{}xticklabels(),rotation=45) \PYZsh{} Rotating Text}
+\PY{n}{plt}\PY{o}{.}\PY{n}{show}\PY{p}{(}\PY{p}{)}
+\end{Verbatim}
+\end{tcolorbox}
+
+    
+    \begin{verbatim}
+<Figure size 4000x2500 with 0 Axes>
+    \end{verbatim}
+
+    
+    \begin{center}
+    \adjustimage{max size={0.9\linewidth}{0.9\paperheight}}{trial_files/trial_25_1.png}
+    \end{center}
+    { \hspace*{\fill} \\}
+    
+    \begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  From the scatter plot, we see that there does not seem to be a
+  correlation between the two variables.
+\item
+  The respective histograms indicate that both the features considered
+  have a multi-modal distribution
+\end{enumerate}
+
+    \hypertarget{decriptive-statistics}{%
+\subsubsection{\texorpdfstring{Decriptive
+Statistics}{Decriptive Statistics }}\label{decriptive-statistics}}
+
+Mean of heart rate and temperatures for each activity
+
+    \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+\prompt{In}{incolor}{90}{\boxspacing}
+\begin{Verbatim}[commandchars=\\\{\}]
+\PY{n}{display}\PY{p}{(}\PY{n}{train}\PY{o}{.}\PY{n}{groupby}\PY{p}{(}\PY{n}{by}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{activity\PYZus{}name}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}\PY{p}{[}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{heart\PYZus{}rate}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{chest\PYZus{}temperature}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{hand\PYZus{}temperature}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,}
+    \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{ankle\PYZus{}temperature}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{p}{]}\PY{o}{.}\PY{n}{mean}\PY{p}{(}\PY{p}{)}\PY{p}{)}
+\PY{n}{discard} \PY{o}{=} \PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{activity\PYZus{}id}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{activity}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{time\PYZus{}stamp}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{id}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{c+c1}{\PYZsh{} Columns to exclude from descriptive statistics}
+\PY{c+c1}{\PYZsh{} Creating table with only relevant columns}
+\PY{n}{train\PYZus{}trimmed} \PY{o}{=} \PY{n}{train}\PY{p}{[}\PY{p}{[}\PY{n}{i} \PY{k}{for} \PY{n}{i} \PY{o+ow}{in} \PY{n}{train}\PY{o}{.}\PY{n}{columns} \PY{k}{if} \PY{n}{i} \PY{o+ow}{not} \PY{o+ow}{in} \PY{n}{discard}\PY{p}{]}\PY{p}{]}
+\end{Verbatim}
+\end{tcolorbox}
+
+    
+    \begin{verbatim}
+                   heart_rate  chest_temperature  hand_temperature  \
+activity_name                                                        
+Nordic_walking     128.462013          38.002231         33.466998   
+ascending_stairs   128.158345          37.245370         33.749157   
+cycling            124.660034          37.275012         32.946659   
+descending_stairs  128.177738          37.216538         33.459013   
+ironing             87.563446          36.394810         33.870523   
+lying               76.475309          34.159138         32.027296   
+rope_jumping       160.755374          34.170265         30.009695   
+running            155.223016          35.376313         32.384714   
+sitting             80.562120          35.203681         32.868206   
+standing            87.532832          35.696582         33.376295   
+vacuum_cleaning    103.498546          36.840727         34.116325   
+walking            111.617431          37.583463         32.710981   
+
+                   ankle_temperature  
+activity_name                         
+Nordic_walking             33.575698  
+ascending_stairs           33.902096  
+cycling                    33.469546  
+descending_stairs          33.975654  
+ironing                    33.731976  
+lying                      31.994619  
+rope_jumping               32.996116  
+running                    33.524444  
+sitting                    32.972880  
+standing                   33.277191  
+vacuum_cleaning            34.037956  
+walking                    33.779762  
+    \end{verbatim}
+
+    
+    Descriptive info of relevant feature
+
+    \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+\prompt{In}{incolor}{91}{\boxspacing}
+\begin{Verbatim}[commandchars=\\\{\}]
+\PY{n}{display}\PY{p}{(}\PY{n}{train\PYZus{}trimmed}\PY{o}{.}\PY{n}{describe}\PY{p}{(}\PY{p}{)}\PY{p}{)} 
+\end{Verbatim}
+\end{tcolorbox}
+
+    
+    \begin{verbatim}
+         heart_rate  hand_temperature  hand_3D_acceleration_16_x  \
+count  47123.000000     511965.000000              511965.000000   
+mean     106.970863         33.087710                  -4.533605   
+std       27.444198          1.577238                   5.988854   
+min       60.000000         24.875000                 -84.937200   
+25%       85.000000         32.187500                  -8.794820   
+50%      102.000000         33.125000                  -4.542710   
+75%      125.000000         34.187500                  -0.163143   
+max      183.000000         35.500000                  47.631400   
+
+       hand_3D_acceleration_16_y  hand_3D_acceleration_16_z  \
+count              511965.000000              511965.000000   
+mean                    5.126806                   3.689248   
+std                     5.734625                   3.835899   
+min                   -70.652900                 -38.907800   
+25%                     2.547690                   1.278630   
+50%                     4.524870                   3.472200   
+75%                     7.352330                   6.452210   
+max                   155.257000                  76.639600   
+
+       hand_3D_acceleration_6_x  hand_3D_acceleration_6_y  \
+count             511965.000000             511965.000000   
+mean                  -4.455751                  5.144888   
+std                    6.002921                  5.606223   
+min                  -61.193800                -61.661900   
+25%                   -8.691700                  2.599640   
+50%                   -4.437940                  4.538110   
+75%                   -0.033667                  7.385470   
+max                   32.067800                 62.259800   
+
+       hand_3D_acceleration_6_z  hand_3D_gyroscope_x  hand_3D_gyroscope_y  \
+count             511965.000000        511965.000000        511965.000000   
+mean                   3.867786             0.018446             0.029293   
+std                    3.824962             1.201751             0.869487   
+min                  -35.489600           -27.804400           -17.849500   
+25%                    1.489900            -0.353937            -0.210912   
+50%                    3.717360            -0.003881             0.008010   
+75%                    6.703310             0.327972             0.263073   
+max                   52.710700            26.415800            13.172700   
+
+       ...  ankle_3D_acceleration_16_z  ankle_3D_acceleration_6_x  \
+count  ...               512343.000000              512343.000000   
+mean   ...                   -2.872810                   9.265303   
+std    ...                    4.035141                   6.228497   
+min    ...                 -158.830000                 -51.532900   
+25%    ...                   -4.202005                   8.366700   
+50%    ...                   -2.650460                   9.529670   
+75%    ...                   -1.138205                  10.194800   
+max    ...                  151.510000                  61.947200   
+
+       ankle_3D_acceleration_6_y  ankle_3D_acceleration_6_z  \
+count              512343.000000              512343.000000   
+mean                    0.020724                  -2.487389   
+std                     7.345212                   3.701292   
+min                   -61.903500                 -62.289300   
+25%                    -2.298375                  -3.826380   
+50%                    -0.229510                  -2.275910   
+75%                     1.662060                  -0.709163   
+max                    62.033000                  60.935700   
+
+       ankle_3D_gyroscope_x  ankle_3D_gyroscope_y  ankle_3D_gyroscope_z  \
+count         512343.000000         512343.000000         512343.000000   
+mean               0.009565             -0.029752              0.019248   
+std                1.086237              0.650960              1.996637   
+min              -13.385600             -7.807450            -14.019600   
+25%               -0.217546             -0.120800             -0.473377   
+50%                0.004332             -0.003775             -0.004166   
+75%                0.111165              0.132976              0.073888   
+max               13.142500              6.410380             14.482700   
+
+       ankle_3D_magnetometer_x  ankle_3D_magnetometer_y  \
+count            512343.000000            512343.000000   
+mean                -33.980589                 0.408594   
+std                  21.388989                23.859013   
+min                -172.865000              -137.908000   
+25%                 -45.250950               -14.075650   
+50%                 -34.933600                -0.243615   
+75%                 -16.216450                18.924900   
+max                  91.247700                94.247800   
+
+       ankle_3D_magnetometer_z  
+count            512343.000000  
+mean                 17.520469  
+std                  21.521871  
+min                -102.716000  
+25%                   3.738570  
+50%                  19.063400  
+75%                  31.979150  
+max                 121.814000  
+
+[8 rows x 40 columns]
+    \end{verbatim}
+
+    
+    Correlation table of relevant features
+
+    \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+\prompt{In}{incolor}{92}{\boxspacing}
+\begin{Verbatim}[commandchars=\\\{\}]
+\PY{n}{display}\PY{p}{(}\PY{n}{train\PYZus{}trimmed}\PY{o}{.}\PY{n}{corr}\PY{p}{(}\PY{p}{)}\PY{p}{)} 
+\end{Verbatim}
+\end{tcolorbox}
+
+    
+    \begin{verbatim}
+                            heart_rate  hand_temperature  \
+heart_rate                    1.000000         -0.122959   
+hand_temperature             -0.122959          1.000000   
+hand_3D_acceleration_16_x    -0.263316         -0.085815   
+hand_3D_acceleration_16_y     0.143729         -0.018689   
+hand_3D_acceleration_16_z    -0.206782         -0.015190   
+hand_3D_acceleration_6_x     -0.266920         -0.074204   
+hand_3D_acceleration_6_y      0.148178         -0.019935   
+hand_3D_acceleration_6_z     -0.209679          0.000098   
+hand_3D_gyroscope_x           0.037024         -0.029583   
+hand_3D_gyroscope_y           0.045291          0.003429   
+hand_3D_gyroscope_z           0.008006          0.008163   
+hand_3D_magnetometer_x        0.312192          0.077464   
+hand_3D_magnetometer_y       -0.270299         -0.066308   
+hand_3D_magnetometer_z        0.073192          0.027679   
+chest_temperature             0.191898          0.673925   
+chest_3D_acceleration_16_x    0.007951         -0.064330   
+chest_3D_acceleration_16_y    0.153226          0.086726   
+chest_3D_acceleration_16_z   -0.416839         -0.168363   
+chest_3D_acceleration_6_x     0.010889         -0.052119   
+chest_3D_acceleration_6_y     0.155070          0.084016   
+chest_3D_acceleration_6_z    -0.419856         -0.159336   
+chest_3D_gyroscope_x         -0.009343         -0.003395   
+chest_3D_gyroscope_y          0.024396         -0.002748   
+chest_3D_gyroscope_z         -0.027868         -0.001764   
+chest_3D_magnetometer_x      -0.196343         -0.083155   
+chest_3D_magnetometer_y      -0.449315         -0.082447   
+chest_3D_magnetometer_z       0.447224          0.053981   
+ankle_temperature             0.358990          0.507768   
+ankle_3D_acceleration_16_x    0.298014          0.088253   
+ankle_3D_acceleration_16_y    0.267217          0.041082   
+ankle_3D_acceleration_16_z   -0.017523         -0.009622   
+ankle_3D_acceleration_6_x     0.311293          0.093833   
+ankle_3D_acceleration_6_y     0.293849          0.043770   
+ankle_3D_acceleration_6_z    -0.009383         -0.003549   
+ankle_3D_gyroscope_x          0.001007          0.001703   
+ankle_3D_gyroscope_y         -0.013049         -0.003199   
+ankle_3D_gyroscope_z          0.007745         -0.000089   
+ankle_3D_magnetometer_x      -0.351276          0.007375   
+ankle_3D_magnetometer_y      -0.365960          0.073591   
+ankle_3D_magnetometer_z      -0.068844          0.185159   
+
+                            hand_3D_acceleration_16_x  \
+heart_rate                                  -0.263316   
+hand_temperature                            -0.085815   
+hand_3D_acceleration_16_x                    1.000000   
+hand_3D_acceleration_16_y                   -0.057713   
+hand_3D_acceleration_16_z                    0.141728   
+hand_3D_acceleration_6_x                     0.983274   
+hand_3D_acceleration_6_y                    -0.075834   
+hand_3D_acceleration_6_z                     0.134792   
+hand_3D_gyroscope_x                          0.032221   
+hand_3D_gyroscope_y                         -0.039698   
+hand_3D_gyroscope_z                          0.051847   
+hand_3D_magnetometer_x                      -0.520619   
+hand_3D_magnetometer_y                       0.059915   
+hand_3D_magnetometer_z                      -0.209452   
+chest_temperature                           -0.324956   
+chest_3D_acceleration_16_x                   0.044638   
+chest_3D_acceleration_16_y                  -0.445942   
+chest_3D_acceleration_16_z                   0.421644   
+chest_3D_acceleration_6_x                    0.038514   
+chest_3D_acceleration_6_y                   -0.450490   
+chest_3D_acceleration_6_z                    0.423466   
+chest_3D_gyroscope_x                        -0.079547   
+chest_3D_gyroscope_y                        -0.049198   
+chest_3D_gyroscope_z                         0.101698   
+chest_3D_magnetometer_x                      0.225213   
+chest_3D_magnetometer_y                      0.323593   
+chest_3D_magnetometer_z                     -0.316626   
+ankle_temperature                           -0.262201   
+ankle_3D_acceleration_16_x                  -0.297303   
+ankle_3D_acceleration_16_y                  -0.121021   
+ankle_3D_acceleration_16_z                  -0.015708   
+ankle_3D_acceleration_6_x                   -0.321101   
+ankle_3D_acceleration_6_y                   -0.135888   
+ankle_3D_acceleration_6_z                   -0.020850   
+ankle_3D_gyroscope_x                         0.054003   
+ankle_3D_gyroscope_y                        -0.021406   
+ankle_3D_gyroscope_z                         0.152355   
+ankle_3D_magnetometer_x                      0.060614   
+ankle_3D_magnetometer_y                      0.270243   
+ankle_3D_magnetometer_z                     -0.058754   
+
+                            hand_3D_acceleration_16_y  \
+heart_rate                                   0.143729   
+hand_temperature                            -0.018689   
+hand_3D_acceleration_16_x                   -0.057713   
+hand_3D_acceleration_16_y                    1.000000   
+hand_3D_acceleration_16_z                    0.040135   
+hand_3D_acceleration_6_x                    -0.053051   
+hand_3D_acceleration_6_y                     0.923348   
+hand_3D_acceleration_6_z                     0.027672   
+hand_3D_gyroscope_x                          0.162745   
+hand_3D_gyroscope_y                         -0.036482   
+hand_3D_gyroscope_z                         -0.010138   
+hand_3D_magnetometer_x                      -0.071620   
+hand_3D_magnetometer_y                      -0.299455   
+hand_3D_magnetometer_z                       0.098780   
+chest_temperature                           -0.034085   
+chest_3D_acceleration_16_x                   0.076256   
+chest_3D_acceleration_16_y                   0.399707   
+chest_3D_acceleration_16_z                  -0.105703   
+chest_3D_acceleration_6_x                    0.074188   
+chest_3D_acceleration_6_y                    0.407692   
+chest_3D_acceleration_6_z                   -0.114078   
+chest_3D_gyroscope_x                         0.135496   
+chest_3D_gyroscope_y                         0.002096   
+chest_3D_gyroscope_z                         0.051276   
+chest_3D_magnetometer_x                     -0.028299   
+chest_3D_magnetometer_y                     -0.109125   
+chest_3D_magnetometer_z                      0.045469   
+ankle_temperature                            0.058123   
+ankle_3D_acceleration_16_x                   0.035781   
+ankle_3D_acceleration_16_y                   0.112935   
+ankle_3D_acceleration_16_z                  -0.033486   
+ankle_3D_acceleration_6_x                    0.042854   
+ankle_3D_acceleration_6_y                    0.125328   
+ankle_3D_acceleration_6_z                   -0.036776   
+ankle_3D_gyroscope_x                         0.024641   
+ankle_3D_gyroscope_y                        -0.046539   
+ankle_3D_gyroscope_z                        -0.029790   
+ankle_3D_magnetometer_x                     -0.056197   
+ankle_3D_magnetometer_y                     -0.040089   
+ankle_3D_magnetometer_z                     -0.002642   
+
+                            hand_3D_acceleration_16_z  \
+heart_rate                                  -0.206782   
+hand_temperature                            -0.015190   
+hand_3D_acceleration_16_x                    0.141728   
+hand_3D_acceleration_16_y                    0.040135   
+hand_3D_acceleration_16_z                    1.000000   
+hand_3D_acceleration_6_x                     0.149033   
+hand_3D_acceleration_6_y                     0.002904   
+hand_3D_acceleration_6_z                     0.966802   
+hand_3D_gyroscope_x                         -0.009302   
+hand_3D_gyroscope_y                          0.021929   
+hand_3D_gyroscope_z                         -0.132987   
+hand_3D_magnetometer_x                      -0.183003   
+hand_3D_magnetometer_y                       0.220611   
+hand_3D_magnetometer_z                      -0.534548   
+chest_temperature                           -0.108247   
+chest_3D_acceleration_16_x                  -0.122333   
+chest_3D_acceleration_16_y                   0.008993   
+chest_3D_acceleration_16_z                   0.105033   
+chest_3D_acceleration_6_x                   -0.128742   
+chest_3D_acceleration_6_y                    0.010652   
+chest_3D_acceleration_6_z                    0.102411   
+chest_3D_gyroscope_x                         0.031734   
+chest_3D_gyroscope_y                        -0.042921   
+chest_3D_gyroscope_z                         0.051380   
+chest_3D_magnetometer_x                      0.187838   
+chest_3D_magnetometer_y                      0.162203   
+chest_3D_magnetometer_z                     -0.086824   
+ankle_temperature                           -0.118200   
+ankle_3D_acceleration_16_x                  -0.138662   
+ankle_3D_acceleration_16_y                  -0.068665   
+ankle_3D_acceleration_16_z                   0.003981   
+ankle_3D_acceleration_6_x                   -0.142191   
+ankle_3D_acceleration_6_y                   -0.074020   
+ankle_3D_acceleration_6_z                    0.003795   
+ankle_3D_gyroscope_x                         0.047002   
+ankle_3D_gyroscope_y                         0.024120   
+ankle_3D_gyroscope_z                         0.039365   
+ankle_3D_magnetometer_x                      0.055797   
+ankle_3D_magnetometer_y                      0.116743   
+ankle_3D_magnetometer_z                     -0.025628   
+
+                            hand_3D_acceleration_6_x  \
+heart_rate                                 -0.266920   
+hand_temperature                           -0.074204   
+hand_3D_acceleration_16_x                   0.983274   
+hand_3D_acceleration_16_y                  -0.053051   
+hand_3D_acceleration_16_z                   0.149033   
+hand_3D_acceleration_6_x                    1.000000   
+hand_3D_acceleration_6_y                   -0.073144   
+hand_3D_acceleration_6_z                    0.140410   
+hand_3D_gyroscope_x                         0.025595   
+hand_3D_gyroscope_y                        -0.019041   
+hand_3D_gyroscope_z                         0.050830   
+hand_3D_magnetometer_x                     -0.522299   
+hand_3D_magnetometer_y                      0.059000   
+hand_3D_magnetometer_z                     -0.209677   
+chest_temperature                          -0.318088   
+chest_3D_acceleration_16_x                  0.046710   
+chest_3D_acceleration_16_y                 -0.440310   
+chest_3D_acceleration_16_z                  0.419109   
+chest_3D_acceleration_6_x                   0.038271   
+chest_3D_acceleration_6_y                  -0.450124   
+chest_3D_acceleration_6_z                   0.420984   
+chest_3D_gyroscope_x                       -0.061826   
+chest_3D_gyroscope_y                       -0.039885   
+chest_3D_gyroscope_z                        0.095831   
+chest_3D_magnetometer_x                     0.224070   
+chest_3D_magnetometer_y                     0.324123   
+chest_3D_magnetometer_z                    -0.317459   
+ankle_temperature                          -0.258923   
+ankle_3D_acceleration_16_x                 -0.292268   
+ankle_3D_acceleration_16_y                 -0.118618   
+ankle_3D_acceleration_16_z                 -0.012814   
+ankle_3D_acceleration_6_x                  -0.315738   
+ankle_3D_acceleration_6_y                  -0.133756   
+ankle_3D_acceleration_6_z                  -0.017696   
+ankle_3D_gyroscope_x                        0.055074   
+ankle_3D_gyroscope_y                       -0.030187   
+ankle_3D_gyroscope_z                        0.132139   
+ankle_3D_magnetometer_x                     0.060253   
+ankle_3D_magnetometer_y                     0.276468   
+ankle_3D_magnetometer_z                    -0.055120   
+
+                            hand_3D_acceleration_6_y  \
+heart_rate                                  0.148178   
+hand_temperature                           -0.019935   
+hand_3D_acceleration_16_x                  -0.075834   
+hand_3D_acceleration_16_y                   0.923348   
+hand_3D_acceleration_16_z                   0.002904   
+hand_3D_acceleration_6_x                   -0.073144   
+hand_3D_acceleration_6_y                    1.000000   
+hand_3D_acceleration_6_z                    0.025862   
+hand_3D_gyroscope_x                         0.114662   
+hand_3D_gyroscope_y                        -0.042269   
+hand_3D_gyroscope_z                         0.020389   
+hand_3D_magnetometer_x                     -0.068519   
+hand_3D_magnetometer_y                     -0.304335   
+hand_3D_magnetometer_z                      0.105348   
+chest_temperature                          -0.036694   
+chest_3D_acceleration_16_x                  0.084148   
+chest_3D_acceleration_16_y                  0.403053   
+chest_3D_acceleration_16_z                 -0.104126   
+chest_3D_acceleration_6_x                   0.084137   
+chest_3D_acceleration_6_y                   0.417876   
+chest_3D_acceleration_6_z                  -0.114258   
+chest_3D_gyroscope_x                        0.107999   
+chest_3D_gyroscope_y                        0.011767   
+chest_3D_gyroscope_z                        0.058201   
+chest_3D_magnetometer_x                    -0.030631   
+chest_3D_magnetometer_y                    -0.112177   
+chest_3D_magnetometer_z                     0.048266   
+ankle_temperature                           0.060104   
+ankle_3D_acceleration_16_x                  0.032217   
+ankle_3D_acceleration_16_y                  0.118035   
+ankle_3D_acceleration_16_z                 -0.036072   
+ankle_3D_acceleration_6_x                   0.035771   
+ankle_3D_acceleration_6_y                   0.133571   
+ankle_3D_acceleration_6_z                  -0.039307   
+ankle_3D_gyroscope_x                        0.024903   
+ankle_3D_gyroscope_y                       -0.040741   
+ankle_3D_gyroscope_z                       -0.008164   
+ankle_3D_magnetometer_x                    -0.058800   
+ankle_3D_magnetometer_y                    -0.041966   
+ankle_3D_magnetometer_z                    -0.001969   
+
+                            hand_3D_acceleration_6_z  hand_3D_gyroscope_x  \
+heart_rate                                 -0.209679             0.037024   
+hand_temperature                            0.000098            -0.029583   
+hand_3D_acceleration_16_x                   0.134792             0.032221   
+hand_3D_acceleration_16_y                   0.027672             0.162745   
+hand_3D_acceleration_16_z                   0.966802            -0.009302   
+hand_3D_acceleration_6_x                    0.140410             0.025595   
+hand_3D_acceleration_6_y                    0.025862             0.114662   
+hand_3D_acceleration_6_z                    1.000000            -0.002552   
+hand_3D_gyroscope_x                        -0.002552             1.000000   
+hand_3D_gyroscope_y                        -0.003456            -0.311805   
+hand_3D_gyroscope_z                        -0.125584            -0.150468   
+hand_3D_magnetometer_x                     -0.179825             0.022158   
+hand_3D_magnetometer_y                      0.223026            -0.012195   
+hand_3D_magnetometer_z                     -0.536651             0.012638   
+chest_temperature                          -0.098829            -0.035155   
+chest_3D_acceleration_16_x                 -0.120035            -0.073577   
+chest_3D_acceleration_16_y                  0.007361             0.026070   
+chest_3D_acceleration_16_z                  0.106840             0.007434   
+chest_3D_acceleration_6_x                  -0.126078            -0.074877   
+chest_3D_acceleration_6_y                   0.009964             0.034643   
+chest_3D_acceleration_6_z                   0.103620             0.007000   
+chest_3D_gyroscope_x                        0.020380            -0.040114   
+chest_3D_gyroscope_y                       -0.042677            -0.248935   
+chest_3D_gyroscope_z                        0.056897             0.160311   
+chest_3D_magnetometer_x                     0.188871            -0.007297   
+chest_3D_magnetometer_y                     0.163071            -0.016818   
+chest_3D_magnetometer_z                    -0.087663             0.001855   
+ankle_temperature                          -0.111373            -0.005373   
+ankle_3D_acceleration_16_x                 -0.138683             0.017954   
+ankle_3D_acceleration_16_y                 -0.069163             0.004020   
+ankle_3D_acceleration_16_z                  0.002709            -0.021430   
+ankle_3D_acceleration_6_x                  -0.143479             0.028614   
+ankle_3D_acceleration_6_y                  -0.072970            -0.000934   
+ankle_3D_acceleration_6_z                   0.002374            -0.025644   
+ankle_3D_gyroscope_x                        0.047047            -0.009661   
+ankle_3D_gyroscope_y                        0.027103            -0.049266   
+ankle_3D_gyroscope_z                        0.045692             0.106972   
+ankle_3D_magnetometer_x                     0.055138             0.017712   
+ankle_3D_magnetometer_y                     0.120551            -0.055932   
+ankle_3D_magnetometer_z                    -0.024440            -0.008197   
+
+                            hand_3D_gyroscope_y  ...  \
+heart_rate                             0.045291  ...   
+hand_temperature                       0.003429  ...   
+hand_3D_acceleration_16_x             -0.039698  ...   
+hand_3D_acceleration_16_y             -0.036482  ...   
+hand_3D_acceleration_16_z              0.021929  ...   
+hand_3D_acceleration_6_x              -0.019041  ...   
+hand_3D_acceleration_6_y              -0.042269  ...   
+hand_3D_acceleration_6_z              -0.003456  ...   
+hand_3D_gyroscope_x                   -0.311805  ...   
+hand_3D_gyroscope_y                    1.000000  ...   
+hand_3D_gyroscope_z                   -0.024758  ...   
+hand_3D_magnetometer_x                -0.051452  ...   
+hand_3D_magnetometer_y                -0.026356  ...   
+hand_3D_magnetometer_z                 0.003369  ...   
+chest_temperature                     -0.014282  ...   
+chest_3D_acceleration_16_x             0.027780  ...   
+chest_3D_acceleration_16_y             0.026891  ...   
+chest_3D_acceleration_16_z            -0.021669  ...   
+chest_3D_acceleration_6_x              0.030052  ...   
+chest_3D_acceleration_6_y              0.018851  ...   
+chest_3D_acceleration_6_z             -0.021299  ...   
+chest_3D_gyroscope_x                   0.058097  ...   
+chest_3D_gyroscope_y                   0.320183  ...   
+chest_3D_gyroscope_z                  -0.151983  ...   
+chest_3D_magnetometer_x               -0.016621  ...   
+chest_3D_magnetometer_y               -0.032810  ...   
+chest_3D_magnetometer_z                0.008072  ...   
+ankle_temperature                      0.001330  ...   
+ankle_3D_acceleration_16_x             0.036405  ...   
+ankle_3D_acceleration_16_y             0.018654  ...   
+ankle_3D_acceleration_16_z            -0.003014  ...   
+ankle_3D_acceleration_6_x              0.031343  ...   
+ankle_3D_acceleration_6_y              0.023879  ...   
+ankle_3D_acceleration_6_z             -0.002575  ...   
+ankle_3D_gyroscope_x                   0.070916  ...   
+ankle_3D_gyroscope_y                   0.040303  ...   
+ankle_3D_gyroscope_z                  -0.032875  ...   
+ankle_3D_magnetometer_x               -0.027517  ...   
+ankle_3D_magnetometer_y               -0.019653  ...   
+ankle_3D_magnetometer_z               -0.009245  ...   
+
+                            ankle_3D_acceleration_16_z  \
+heart_rate                                   -0.017523   
+hand_temperature                             -0.009622   
+hand_3D_acceleration_16_x                    -0.015708   
+hand_3D_acceleration_16_y                    -0.033486   
+hand_3D_acceleration_16_z                     0.003981   
+hand_3D_acceleration_6_x                     -0.012814   
+hand_3D_acceleration_6_y                     -0.036072   
+hand_3D_acceleration_6_z                      0.002709   
+hand_3D_gyroscope_x                          -0.021430   
+hand_3D_gyroscope_y                          -0.003014   
+hand_3D_gyroscope_z                           0.051403   
+hand_3D_magnetometer_x                        0.041670   
+hand_3D_magnetometer_y                       -0.085195   
+hand_3D_magnetometer_z                        0.002201   
+chest_temperature                            -0.022599   
+chest_3D_acceleration_16_x                   -0.093143   
+chest_3D_acceleration_16_y                   -0.002008   
+chest_3D_acceleration_16_z                   -0.104079   
+chest_3D_acceleration_6_x                    -0.109025   
+chest_3D_acceleration_6_y                    -0.003678   
+chest_3D_acceleration_6_z                    -0.101438   
+chest_3D_gyroscope_x                          0.012339   
+chest_3D_gyroscope_y                         -0.029650   
+chest_3D_gyroscope_z                         -0.002871   
+chest_3D_magnetometer_x                      -0.048041   
+chest_3D_magnetometer_y                      -0.037075   
+chest_3D_magnetometer_z                       0.143125   
+ankle_temperature                             0.118360   
+ankle_3D_acceleration_16_x                    0.082262   
+ankle_3D_acceleration_16_y                   -0.126340   
+ankle_3D_acceleration_16_z                    1.000000   
+ankle_3D_acceleration_6_x                     0.037854   
+ankle_3D_acceleration_6_y                    -0.132684   
+ankle_3D_acceleration_6_z                     0.736788   
+ankle_3D_gyroscope_x                         -0.129078   
+ankle_3D_gyroscope_y                         -0.058178   
+ankle_3D_gyroscope_z                         -0.023852   
+ankle_3D_magnetometer_x                      -0.054832   
+ankle_3D_magnetometer_y                      -0.071794   
+ankle_3D_magnetometer_z                      -0.013896   
+
+                            ankle_3D_acceleration_6_x  \
+heart_rate                                   0.311293   
+hand_temperature                             0.093833   
+hand_3D_acceleration_16_x                   -0.321101   
+hand_3D_acceleration_16_y                    0.042854   
+hand_3D_acceleration_16_z                   -0.142191   
+hand_3D_acceleration_6_x                    -0.315738   
+hand_3D_acceleration_6_y                     0.035771   
+hand_3D_acceleration_6_z                    -0.143479   
+hand_3D_gyroscope_x                          0.028614   
+hand_3D_gyroscope_y                          0.031343   
+hand_3D_gyroscope_z                         -0.058191   
+hand_3D_magnetometer_x                       0.198440   
+hand_3D_magnetometer_y                      -0.261603   
+hand_3D_magnetometer_z                       0.123623   
+chest_temperature                            0.307747   
+chest_3D_acceleration_16_x                  -0.090625   
+chest_3D_acceleration_16_y                   0.381676   
+chest_3D_acceleration_16_z                  -0.363030   
+chest_3D_acceleration_6_x                   -0.079567   
+chest_3D_acceleration_6_y                    0.373339   
+chest_3D_acceleration_6_z                   -0.348323   
+chest_3D_gyroscope_x                        -0.056810   
+chest_3D_gyroscope_y                         0.086117   
+chest_3D_gyroscope_z                        -0.092291   
+chest_3D_magnetometer_x                     -0.269958   
+chest_3D_magnetometer_y                     -0.378585   
+chest_3D_magnetometer_z                      0.289889   
+ankle_temperature                            0.271944   
+ankle_3D_acceleration_16_x                   0.885973   
+ankle_3D_acceleration_16_y                   0.271218   
+ankle_3D_acceleration_16_z                   0.037854   
+ankle_3D_acceleration_6_x                    1.000000   
+ankle_3D_acceleration_6_y                    0.252686   
+ankle_3D_acceleration_6_z                    0.026781   
+ankle_3D_gyroscope_x                        -0.033378   
+ankle_3D_gyroscope_y                        -0.000198   
+ankle_3D_gyroscope_z                        -0.089616   
+ankle_3D_magnetometer_x                     -0.213079   
+ankle_3D_magnetometer_y                     -0.161184   
+ankle_3D_magnetometer_z                      0.140191   
+
+                            ankle_3D_acceleration_6_y  \
+heart_rate                                   0.293849   
+hand_temperature                             0.043770   
+hand_3D_acceleration_16_x                   -0.135888   
+hand_3D_acceleration_16_y                    0.125328   
+hand_3D_acceleration_16_z                   -0.074020   
+hand_3D_acceleration_6_x                    -0.133756   
+hand_3D_acceleration_6_y                     0.133571   
+hand_3D_acceleration_6_z                    -0.072970   
+hand_3D_gyroscope_x                         -0.000934   
+hand_3D_gyroscope_y                          0.023879   
+hand_3D_gyroscope_z                          0.065557   
+hand_3D_magnetometer_x                       0.225284   
+hand_3D_magnetometer_y                      -0.119458   
+hand_3D_magnetometer_z                       0.089405   
+chest_temperature                            0.187425   
+chest_3D_acceleration_16_x                   0.030465   
+chest_3D_acceleration_16_y                   0.169352   
+chest_3D_acceleration_16_z                  -0.326429   
+chest_3D_acceleration_6_x                    0.044176   
+chest_3D_acceleration_6_y                    0.182849   
+chest_3D_acceleration_6_z                   -0.332708   
+chest_3D_gyroscope_x                         0.019592   
+chest_3D_gyroscope_y                         0.092597   
+chest_3D_gyroscope_z                         0.085946   
+chest_3D_magnetometer_x                     -0.212246   
+chest_3D_magnetometer_y                     -0.285292   
+chest_3D_magnetometer_z                      0.256831   
+ankle_temperature                            0.176331   
+ankle_3D_acceleration_16_x                   0.204557   
+ankle_3D_acceleration_16_y                   0.825851   
+ankle_3D_acceleration_16_z                  -0.132684   
+ankle_3D_acceleration_6_x                    0.252686   
+ankle_3D_acceleration_6_y                    1.000000   
+ankle_3D_acceleration_6_z                   -0.149320   
+ankle_3D_gyroscope_x                         0.148126   
+ankle_3D_gyroscope_y                        -0.083108   
+ankle_3D_gyroscope_z                         0.082713   
+ankle_3D_magnetometer_x                     -0.161890   
+ankle_3D_magnetometer_y                     -0.059662   
+ankle_3D_magnetometer_z                      0.101727   
+
+                            ankle_3D_acceleration_6_z  ankle_3D_gyroscope_x  \
+heart_rate                                  -0.009383              0.001007   
+hand_temperature                            -0.003549              0.001703   
+hand_3D_acceleration_16_x                   -0.020850              0.054003   
+hand_3D_acceleration_16_y                   -0.036776              0.024641   
+hand_3D_acceleration_16_z                    0.003795              0.047002   
+hand_3D_acceleration_6_x                    -0.017696              0.055074   
+hand_3D_acceleration_6_y                    -0.039307              0.024903   
+hand_3D_acceleration_6_z                     0.002374              0.047047   
+hand_3D_gyroscope_x                         -0.025644             -0.009661   
+hand_3D_gyroscope_y                         -0.002575              0.070916   
+hand_3D_gyroscope_z                          0.054238             -0.058798   
+hand_3D_magnetometer_x                       0.046127              0.055993   
+hand_3D_magnetometer_y                      -0.097047              0.062349   
+hand_3D_magnetometer_z                       0.001232             -0.000349   
+chest_temperature                           -0.020918              0.004134   
+chest_3D_acceleration_16_x                  -0.101692              0.041631   
+chest_3D_acceleration_16_y                  -0.008740             -0.039824   
+chest_3D_acceleration_16_z                  -0.122139             -0.000363   
+chest_3D_acceleration_6_x                   -0.112393              0.029537   
+chest_3D_acceleration_6_y                   -0.006221             -0.049740   
+chest_3D_acceleration_6_z                   -0.120245              0.000212   
+chest_3D_gyroscope_x                         0.001970              0.034570   
+chest_3D_gyroscope_y                        -0.035954              0.155693   
+chest_3D_gyroscope_z                        -0.003591              0.151770   
+chest_3D_magnetometer_x                     -0.054697              0.004880   
+chest_3D_magnetometer_y                     -0.043745              0.001414   
+chest_3D_magnetometer_z                      0.161727              0.015082   
+ankle_temperature                            0.142308             -0.005881   
+ankle_3D_acceleration_16_x                  -0.068982             -0.012075   
+ankle_3D_acceleration_16_y                  -0.114582              0.175343   
+ankle_3D_acceleration_16_z                   0.736788             -0.129078   
+ankle_3D_acceleration_6_x                    0.026781             -0.033378   
+ankle_3D_acceleration_6_y                   -0.149320              0.148126   
+ankle_3D_acceleration_6_z                    1.000000             -0.121805   
+ankle_3D_gyroscope_x                        -0.121805              1.000000   
+ankle_3D_gyroscope_y                         0.018603             -0.145184   
+ankle_3D_gyroscope_z                        -0.013720              0.319460   
+ankle_3D_magnetometer_x                     -0.064840             -0.018712   
+ankle_3D_magnetometer_y                     -0.084030              0.040162   
+ankle_3D_magnetometer_z                     -0.015967             -0.030951   
+
+                            ankle_3D_gyroscope_y  ankle_3D_gyroscope_z  \
+heart_rate                             -0.013049              0.007745   
+hand_temperature                       -0.003199             -0.000089   
+hand_3D_acceleration_16_x              -0.021406              0.152355   
+hand_3D_acceleration_16_y              -0.046539             -0.029790   
+hand_3D_acceleration_16_z               0.024120              0.039365   
+hand_3D_acceleration_6_x               -0.030187              0.132139   
+hand_3D_acceleration_6_y               -0.040741             -0.008164   
+hand_3D_acceleration_6_z                0.027103              0.045692   
+hand_3D_gyroscope_x                    -0.049266              0.106972   
+hand_3D_gyroscope_y                     0.040303             -0.032875   
+hand_3D_gyroscope_z                    -0.090444             -0.179240   
+hand_3D_magnetometer_x                 -0.069224              0.071446   
+hand_3D_magnetometer_y                 -0.039521              0.051166   
+hand_3D_magnetometer_z                 -0.039671              0.014114   
+chest_temperature                      -0.040911              0.002406   
+chest_3D_acceleration_16_x             -0.060604             -0.059743   
+chest_3D_acceleration_16_y             -0.023265             -0.152110   
+chest_3D_acceleration_16_z             -0.012737              0.084540   
+chest_3D_acceleration_6_x              -0.049021             -0.057512   
+chest_3D_acceleration_6_y              -0.006837             -0.129310   
+chest_3D_acceleration_6_z              -0.014752              0.077625   
+chest_3D_gyroscope_x                   -0.103030             -0.055128   
+chest_3D_gyroscope_y                    0.051827             -0.090485   
+chest_3D_gyroscope_z                   -0.167024              0.295936   
+chest_3D_magnetometer_x                 0.027475             -0.001866   
+chest_3D_magnetometer_y                 0.008639             -0.004539   
+chest_3D_magnetometer_z                 0.013576              0.005435   
+ankle_temperature                       0.005436              0.005208   
+ankle_3D_acceleration_16_x             -0.047366             -0.046079   
+ankle_3D_acceleration_16_y             -0.078440              0.151473   
+ankle_3D_acceleration_16_z             -0.058178             -0.023852   
+ankle_3D_acceleration_6_x              -0.000198             -0.089616   
+ankle_3D_acceleration_6_y              -0.083108              0.082713   
+ankle_3D_acceleration_6_z               0.018603             -0.013720   
+ankle_3D_gyroscope_x                   -0.145184              0.319460   
+ankle_3D_gyroscope_y                    1.000000              0.000932   
+ankle_3D_gyroscope_z                    0.000932              1.000000   
+ankle_3D_magnetometer_x                 0.005631             -0.009846   
+ankle_3D_magnetometer_y                -0.048957              0.007227   
+ankle_3D_magnetometer_z                -0.036171             -0.017108   
+
+                            ankle_3D_magnetometer_x  ankle_3D_magnetometer_y  \
+heart_rate                                -0.351276                -0.365960   
+hand_temperature                           0.007375                 0.073591   
+hand_3D_acceleration_16_x                  0.060614                 0.270243   
+hand_3D_acceleration_16_y                 -0.056197                -0.040089   
+hand_3D_acceleration_16_z                  0.055797                 0.116743   
+hand_3D_acceleration_6_x                   0.060253                 0.276468   
+hand_3D_acceleration_6_y                  -0.058800                -0.041966   
+hand_3D_acceleration_6_z                   0.055138                 0.120551   
+hand_3D_gyroscope_x                        0.017712                -0.055932   
+hand_3D_gyroscope_y                       -0.027517                -0.019653   
+hand_3D_gyroscope_z                       -0.082852                 0.121414   
+hand_3D_magnetometer_x                    -0.044217                -0.407767   
+hand_3D_magnetometer_y                     0.314049                 0.164239   
+hand_3D_magnetometer_z                     0.132487                -0.257296   
+chest_temperature                         -0.038998                -0.114093   
+chest_3D_acceleration_16_x                -0.007457                 0.029926   
+chest_3D_acceleration_16_y                -0.118991                -0.209716   
+chest_3D_acceleration_16_z                 0.271033                 0.368706   
+chest_3D_acceleration_6_x                 -0.008998                 0.025967   
+chest_3D_acceleration_6_y                 -0.119348                -0.214353   
+chest_3D_acceleration_6_z                  0.270645                 0.371205   
+chest_3D_gyroscope_x                       0.014538                -0.012984   
+chest_3D_gyroscope_y                      -0.054956                 0.053356   
+chest_3D_gyroscope_z                       0.045880                 0.000044   
+chest_3D_magnetometer_x                    0.164873                 0.350518   
+chest_3D_magnetometer_y                    0.598013                 0.261254   
+chest_3D_magnetometer_z                   -0.182538                -0.659116   
+ankle_temperature                         -0.231366                -0.125601   
+ankle_3D_acceleration_16_x                -0.207734                -0.153001   
+ankle_3D_acceleration_16_y                -0.149994                -0.056651   
+ankle_3D_acceleration_16_z                -0.054832                -0.071794   
+ankle_3D_acceleration_6_x                 -0.213079                -0.161184   
+ankle_3D_acceleration_6_y                 -0.161890                -0.059662   
+ankle_3D_acceleration_6_z                 -0.064840                -0.084030   
+ankle_3D_gyroscope_x                      -0.018712                 0.040162   
+ankle_3D_gyroscope_y                       0.005631                -0.048957   
+ankle_3D_gyroscope_z                      -0.009846                 0.007227   
+ankle_3D_magnetometer_x                    1.000000                 0.084596   
+ankle_3D_magnetometer_y                    0.084596                 1.000000   
+ankle_3D_magnetometer_z                   -0.045255                 0.002471   
+
+                            ankle_3D_magnetometer_z  
+heart_rate                                -0.068844  
+hand_temperature                           0.185159  
+hand_3D_acceleration_16_x                 -0.058754  
+hand_3D_acceleration_16_y                 -0.002642  
+hand_3D_acceleration_16_z                 -0.025628  
+hand_3D_acceleration_6_x                  -0.055120  
+hand_3D_acceleration_6_y                  -0.001969  
+hand_3D_acceleration_6_z                  -0.024440  
+hand_3D_gyroscope_x                       -0.008197  
+hand_3D_gyroscope_y                       -0.009245  
+hand_3D_gyroscope_z                        0.057058  
+hand_3D_magnetometer_x                    -0.107063  
+hand_3D_magnetometer_y                    -0.295404  
+hand_3D_magnetometer_z                     0.167628  
+chest_temperature                          0.180667  
+chest_3D_acceleration_16_x                 0.033226  
+chest_3D_acceleration_16_y                 0.221281  
+chest_3D_acceleration_16_z                -0.156539  
+chest_3D_acceleration_6_x                  0.035761  
+chest_3D_acceleration_6_y                  0.220125  
+chest_3D_acceleration_6_z                 -0.153157  
+chest_3D_gyroscope_x                      -0.006036  
+chest_3D_gyroscope_y                      -0.018796  
+chest_3D_gyroscope_z                      -0.023014  
+chest_3D_magnetometer_x                   -0.665925  
+chest_3D_magnetometer_y                   -0.309081  
+chest_3D_magnetometer_z                   -0.101208  
+ankle_temperature                          0.126087  
+ankle_3D_acceleration_16_x                 0.135432  
+ankle_3D_acceleration_16_y                 0.093705  
+ankle_3D_acceleration_16_z                -0.013896  
+ankle_3D_acceleration_6_x                  0.140191  
+ankle_3D_acceleration_6_y                  0.101727  
+ankle_3D_acceleration_6_z                 -0.015967  
+ankle_3D_gyroscope_x                      -0.030951  
+ankle_3D_gyroscope_y                      -0.036171  
+ankle_3D_gyroscope_z                      -0.017108  
+ankle_3D_magnetometer_x                   -0.045255  
+ankle_3D_magnetometer_y                    0.002471  
+ankle_3D_magnetometer_z                    1.000000  
+
+[40 rows x 40 columns]
+    \end{verbatim}
+
+    
+    \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+\prompt{In}{incolor}{ }{\boxspacing}
+\begin{Verbatim}[commandchars=\\\{\}]
+
+\end{Verbatim}
+\end{tcolorbox}
+
+    \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+\prompt{In}{incolor}{ }{\boxspacing}
+\begin{Verbatim}[commandchars=\\\{\}]
+
+\end{Verbatim}
+\end{tcolorbox}
+
+\printbibliography
+    % Add a bibliography block to the postdoc
+    
+    
+    
+\end{document}

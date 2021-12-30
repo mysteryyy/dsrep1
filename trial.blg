@@ -1,0 +1,17 @@
+[0] Config.pm:312> INFO - This is Biber 2.15
+[0] Config.pm:315> INFO - Logfile is 'trial.blg'
+[51] biber:330> INFO - === Sat Dec 18, 2021, 15:18:32
+[60] Biber.pm:415> INFO - Reading 'trial.bcf'
+[106] Biber.pm:952> INFO - Found 1 citekeys in bib section 0
+[115] Biber.pm:4334> INFO - Processing section 0
+[123] Biber.pm:4523> INFO - Looking for bibtex format file 'ref.bib' for section 0
+[123] bibtex.pm:1682> INFO - LaTeX decoding ...
+[125] bibtex.pm:1494> INFO - Found BibTeX data source 'ref.bib'
+[136] Utils.pm:384> WARN - month field 'Dec' in entry 'farnam_street_2019' is not an integer - this will probably not sort properly.
+[141] UCollate.pm:68> INFO - Overriding locale 'en-US' defaults 'variable = shifted' with 'variable = non-ignorable'
+[142] UCollate.pm:68> INFO - Overriding locale 'en-US' defaults 'normalization = NFD' with 'normalization = prenormalized'
+[142] Biber.pm:4162> INFO - Sorting list 'nty/global//global/global' of type 'entry' with template 'nty' and locale 'en-US'
+[142] Biber.pm:4168> INFO - No sort tailoring available for locale 'en-US'
+[145] bbl.pm:651> INFO - Writing 'trial.bbl' with encoding 'UTF-8'
+[146] bbl.pm:754> INFO - Output to trial.bbl
+[146] Biber.pm:128> INFO - WARNINGS: 1
