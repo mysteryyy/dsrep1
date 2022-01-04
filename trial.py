@@ -12,22 +12,18 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import seaborn as sns
+import statsmodels.api as sm
 import tabula
 from IPython.display import display
 from matplotlib import rcParams
 from numpy.fft import rfft
-from numpy.lib.stride_tricks import sliding_window_view
 from scipy.stats import ranksums, ttest_ind
 from sklearn import cluster, preprocessing
 from sklearn.cluster import KMeans
 from sklearn.decomposition import PCA
-from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import (accuracy_score, classification_report, f1_score,
-                             homogeneity_score, log_loss, silhouette_score,
-                             v_measure_score)
-from sklearn.neighbors import KNeighborsClassifier
-from sklearn.preprocessing import MinMaxScaler, OneHotEncoder, RobustScaler
+                             log_loss, v_measure_score)
 
 os.chdir("/home/sahil/Downloads/PAMAP2_Dataset/")  # Setting up working directory
 import warnings
@@ -54,10 +50,8 @@ warnings.filterwarnings("ignore")
 #   This classification makes it easier to perform hypothesis testing between pair of attributes.
 
 
-"""
-Given below are functions to give relevant names to the columns and create a
-single table containing data for all subjects
-"""
+# Given below are functions to give relevant names to the columns and create a
+# single table containing data for all subjects
 
 
 def gen_activity_names():
@@ -329,6 +323,17 @@ sns.lineplot(
 )
 plt.show()
 
+# * Time series plot of x axis chest acceleration
+
+plt.clf()
+random.seed(4)
+train1 = train[train.id == random.choice(train.id.unique())]
+sns.lineplot(
+    x="time_stamp", y="chest_3D_acceleration_16_x", hue="activity_name", data=train1
+)
+plt.show()
+
+
 # * Boxplot of heart rate grouped by activity type.
 
 rcParams["figure.figsize"] = 15, 10
@@ -418,22 +423,6 @@ plt.show()
 # 1. Most of the activities seem to have a skewed distribution for chest temperature.
 # 2. 'car_driving' and 'watching_tv' seem to have the least dispersed distribution.
 
-# * A joint plot trying to investigate possibility of correlation between heart rate
-#   and chest temperature.
-
-plt.clf()
-rcParams["font.size"] = 20  # Setting the text and number font size
-g = sns.JointGrid(data=train, x="heart_rate", y="chest_temperature", height=10, ratio=3)
-g.plot_joint(sns.scatterplot, palette="colorblind")
-g.plot_marginals(sns.histplot)
-# ax.set_xticklabels(ax.get_xticklabels(),rotation=45) # Rotating Text
-plt.show()
-
-# 1. From the scatter plot, we see that there does not seem to be a correlation between
-#    the two variables.
-# 2. The respective histograms indicate that both the features considered have
-#    a multi-modal distribution.
-
 # * Correlation map for relevant features
 discard = [
     "activity_id",
@@ -475,7 +464,8 @@ display(train.groupby(by="activity_name")[coordinates].var())
 # the test set:
 # - Heart rate of moderate activities are greater than heart rate of light activities.
 # - Heart rate of intense activities are greater than heart rate of light activities.
-# - Chest acceleration along z axis is greater than that along x axis during lying.
+# - Chest acceleration along z axis is greater while lying compared to z axis chest
+#   acceleration of other activities.
 # - Chest acceleration along x axis is greater than that along z axis during running.
 
 
@@ -513,16 +503,19 @@ print(ranksums(test1, test2, alternative="greater"))
 
 
 # ### Hypothesis 3
-# $H_0$(Null) : The z axis chest acceleration during lying is lower or same as the x axis acceleration.
-# $H_1$(Alternate) :The z axis chest acceleration during lying is higher than the x axis acceleration.
+# $H_0$(Null) : The z axis chest acceleration during lying is lower or same as acceleration of all other activities
+# $H_1$(Alternate) :The z axis chest acceleration during lying is higher than the acceleration of all other activities
 
 
-test_l = test[test.activity_name == "lying"]
-feature1 = "chest_3D_acceleration_16_z"
-feature2 = "chest_3D_acceleration_16_x"
-test1 = test_l[feature1]
-test2 = test_l[feature2]
-print(ranksums(test1, test2, alternative="greater"))
+test["lying_or_not"] = test.activity_name.apply(lambda x: 1 if x == "lying" else 0)
+feature = "chest_3D_acceleration_16_z"
+test_hypothesis = test[["lying_or_not", feature]].dropna()
+x = test_hypothesis.lying_or_not
+x = sm.add_constant(x)
+y = test_hypothesis["feature"]
+model = sm.OLS(y, x)
+res = model.fit()
+display(res.summary())
 
 # Since we get a p-value of 0 which is lower than 0.05 we reject the null hypothesis and accept
 # the alternate hypothesis.
@@ -637,8 +630,6 @@ class modelling:
         return x_train, x_val, x_test, y_train, y_val, y_test, le
 
 
-# **Warning**: This cell takes a very long time to run.It is advised to use a debugger to run
-# it line by line to check it.
 def final_sliding_window(clean_data):
     feats = [i for i in clean_data.columns if i not in discard]
     final = []
@@ -652,10 +643,9 @@ def final_sliding_window(clean_data):
     return clean_data_feats
 
 
-# **Remember to uncomment line below**
-# final_sliding_window(clean_data)
-# print(clean_data[[i for i in clean_data.columns if 'roll' in i]].head())
-
+# **Warning**: This cell takes a very long time to run.It is advised to use a debugger to run
+# it line by line to check it.
+final_sliding_window(clean_data)
 
 clean_data_feats = pd.read_pickle("activity_short_data.pkl")
 features = [i for i in clean_data_feats.columns if i not in discard]
@@ -673,9 +663,6 @@ model = modelling(clean_data_feats, features)
 
 x_train_labels = pd.DataFrame()
 x_train_labels["activity_name"] = le.inverse_transform(y_train)
-ncluster = 92
-clusters = dict()
-recison = dict()
 
 
 def precision(df):
@@ -696,7 +683,6 @@ def precision(df):
     return act_precision
 
 
-# takes time
 def best_cluster():
     v_measure = dict()
     for nclust in range(12, 112, 5):
@@ -714,8 +700,12 @@ def best_cluster():
     return v_measure
 
 
+# **Warning**: The cell below takes a very long time to run. A debugger can be used to
+# check it by executing the function line by line.
 vm = pd.DataFrame(best_cluster())
 vm.to_pickle("v_measure.pkl")
+
+vm = pd.read_pickle("v_measure.pkl")
 print(vm)
 # Not much difference found so using 100 clusters
 
@@ -732,13 +722,50 @@ def activity_precision():
     return label_act_precision
 
 
-# remember to uncomment for checking code
-# lab_score = pd.DataFrame(activity_precision())
-# lab_score.to_pickle("precision_score.pkl")
+# **Warning**: The cell below takes a very long time to run. A debugger can be used to
+# check it by executing the function line by line.
+lab_score = pd.DataFrame(activity_precision())
+lab_score.to_pickle("precision_score.pkl")
+
 lab_score = pd.read_pickle("precision_score.pkl")
 
 print("Precision score for each activity with respect to features")
-print(lab_score)
+display(lab_score)
+
+
+def log_reg(model, split_type, activity_type):
+    if split_type == "one_act":
+        x_train, x_val, x_test, y_train, y_val, y_test = model.split_one_act(
+            activity_type
+        )
+    else:
+        (
+            x_train,
+            x_val,
+            x_test,
+            y_train,
+            y_val,
+            y_test,
+            le,
+        ) = model.train_test_split_actname()
+    pca = PCA(n_components=0.99)
+    x_train = pca.fit_transform(x_train)
+    x_val = pca.transform(x_val)
+    x_test = pca.transform(x_test)
+    f1 = []
+    acc = []
+    print(f"Feature size: {x_train.shape[1]}")
+    for lam in np.arange(0.1, 2, 0.1):
+
+        lr = LogisticRegression(solver="saga", random_state=30, C=1 / lam)
+        lr.fit(x_train, y_train)
+        f1.append(f1_score(y_val, lr.predict(x_val), average="macro"))
+        acc.append(accuracy_score(y_val, lr.predict(x_val)))
+    df_lr = pd.DataFrame()
+    df_lr["validation_accuracy"] = acc
+    df_lr["f1"] = f1
+    df_lr["lambda"] = np.arange(0.1, 2, 0.1)
+    return df_lr
 
 
 def one_act_model(act, low_index, up_index, lab_score):
@@ -747,23 +774,7 @@ def one_act_model(act, low_index, up_index, lab_score):
         lab_score[act].sort_values(ascending=False).index[low_index:up_index]
     )
     model = modelling(clean_data_feats, best_feats)
-    x_train, x_val, x_test, y_train, y_val, y_test = model.split_one_act(act)
-    pca = PCA(n_components=0.99)
-    x_train = pca.fit_transform(x_train)
-    x_val = pca.transform(x_val)
-    x_test = pca.transform(x_test)
-    f1 = []
-    acc = []
-    for lam in np.arange(0.1, 1, 0.1):
-
-        lr = LogisticRegression(solver="saga", random_state=30, C=1 / lam)
-        lr.fit(x_train, y_train)
-        f1.append(f1_score(y_val, lr.predict(x_val)))
-        acc.append(accuracy_score(y_val, lr.predict(x_val)))
-    df_lr = pd.DataFrame()
-    df_lr["validation_accuracy"] = acc
-    df_lr["f1"] = f1
-    df_lr["lambda"] = np.arange(0.1, 1, 0.1)
+    df_lr = log_reg(model, "one_act", "lying")
     return df_lr, model, best_feats
 
 
@@ -775,13 +786,17 @@ print("worst feature performance")
 print(df_lr_worst_feat)
 print("done")
 
-# Since all \lambda values give the same results we use just lambda = 0.9 and test this final model on test set.
+# Since all $\lambda$ values give the same results we use just $lambda = 0.9$ and test this final model on test set.
 lam = 0.9
 x_train, x_val, x_test, y_train, y_val, y_test = best_model.split_one_act("lying")
 lr = LogisticRegression(solver="saga", random_state=30, C=1 / lam)
 lr.fit(x_train, y_train)
+y_pred = lr.predict(x_test)
 print("Test Set Results")
-print(classification_report(y_test, lr.predict(x_test)))
+print(classification_report(y_test, y_pred))
+print("Time spent lying (predicted): {list(y_pred).count(1)} seconds")
+print("Time spent lying (actual): {list(y_test).count(1)} seconds")
+
 print(f"Best Features for lying: {best_feats}")
 print(f"Worst Features for lying: {worst_feats}")
 
@@ -819,9 +834,12 @@ def determine_ncluster(x_train, y_train):
     return v_measure_feats
 
 
-# remember to uncomment to genereate homogeneity score
-# v_measure_feats = determine_ncluster(x_train, y_train)
-# pd.DataFrame(v_measure_feats).to_pickle("multiple_feature_vmeasure.pkl")
+# **Warning**: The cell below takes a very long time to run. A debugger can be used to
+# check it by executing the function line by line.
+v_measure_feats = determine_ncluster(x_train, y_train)
+pd.DataFrame(v_measure_feats).to_pickle("multiple_feature_vmeasure.pkl")
+
+
 v_measure = pd.read_pickle("multiple_feature_vmeasure.pkl")
 ncluster = v_measure.idxmax(axis=1).values[0]
 print(f"Optimal No. of Clusters:{ncluster}")
@@ -839,16 +857,44 @@ for i in range(ncluster):
     for j in x_train_labels.activity_name.unique():
         clust_prob = len(temp[temp.activity_name == j]) / len(temp)
         xc.loc[j, i] = clust_prob
-print(xc)
+print("Probability of activity given a cluster label:")
+display(xc)
 xc = xc.astype("float")
-x_val_labels = pd.DataFrame(x_val).copy()
-x_val_labels["activity_name"] = le.inverse_transform(y_val)
-x_val_labels["labels"] = clf.predict(x_val)
-x_val_labels["predicted_activity"] = x_val_labels.labels.apply(
-    lambda x: xc[[x]].idxmax().values[0]
-)
-print(
-    len(x_val_labels[x_val_labels.activity_name == x_val_labels.predicted_activity])
-    / len(x_val_labels)
-)
-print("Thank You")
+
+
+def accuracy(x, y):
+    x_labels = pd.DataFrame(x).copy()
+    x_labels["activity_name"] = le.inverse_transform(y)
+    x_labels["labels"] = clf.predict(x)
+    x_labels["predicted_activity"] = x_labels.labels.apply(
+        lambda x: xc[[x]].idxmax().values[0]
+    )
+    print(
+        len(x_labels[x_labels.activity_name == x_labels.predicted_activity])
+        / len(x_labels)
+    )
+    return x_labels
+
+
+print(f"Validation accuracy for Clustering: {accuracy(x_val,y_val)}")
+
+# Check if Logistic Regression performs better
+df_lr = log_reg(cluster_pred, "normal", "")
+print("Validation accuracy for LR:")
+display(df_lr)
+
+
+# Since the validation accuracy of our Logistic Regression model is lesser than that of the clustering model, Clustering is choosen as the final model which will be evaluated on the test set.
+
+
+print("Testing Accuracy")
+clust_test = accuracy(x_test, y_test)
+clust_test["id"] = clean_data_feats[clean_data_feats.id.isin([107, 108])].id
+for subj in [107, 108]:
+    subj_df = clust_test[clust_test.id == subj]
+    act_freq_predicted = subj_df.predicted_activity.value_counts()
+    act_freq_actual = subj_df.activity_name.value_counts()
+    print(f"For subject {subj}")
+    for i in subj_df.activity_name.unique():
+        print(f"Time spent {i} (predicted) : {act_freq_predicted[i]} seconds")
+        print(f"Time spent {i} (actual) : {act_freq_actual[i]} seconds")
