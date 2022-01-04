@@ -4,12 +4,10 @@
 # The PAMAP2 Physical Activity Monitoring dataset (available here) contains data from 9 participants who participated in 18 various physical activities (such as walking, cycling, and soccer) while wearing three inertial measurement units (IMUs) and a heart rate monitor. This information is saved in separate text files for each subject. The goal is to build hardware and/or software that can determine the amount and type of physical activity performed by an individual by using insights derived from analysing the given dataset.
 
 
-import itertools
 import os
-import pdb
 import random
+from collections import defaultdict
 
-import antropy as ant
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -20,13 +18,16 @@ from matplotlib import rcParams
 from numpy.fft import rfft
 from numpy.lib.stride_tricks import sliding_window_view
 from scipy.stats import ranksums, ttest_ind
-from sklearn import preprocessing
+from sklearn import cluster, preprocessing
+from sklearn.cluster import KMeans
 from sklearn.decomposition import PCA
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import accuracy_score, classification_report, log_loss
+from sklearn.metrics import (accuracy_score, classification_report, f1_score,
+                             homogeneity_score, log_loss, silhouette_score,
+                             v_measure_score)
 from sklearn.neighbors import KNeighborsClassifier
-from sklearn.preprocessing import OneHotEncoder, RobustScaler
+from sklearn.preprocessing import MinMaxScaler, OneHotEncoder, RobustScaler
 
 os.chdir("/home/sahil/Downloads/PAMAP2_Dataset/")  # Setting up working directory
 import warnings
@@ -182,16 +183,6 @@ display(data.head())
 data.to_pickle("activity_data.pkl")  # Saving transformed data for future use
 
 
-def train_test_split(data, split_size):
-    np.random.seed(5)
-    msk = (
-        np.random.rand(len(data)) < split_size
-    )  # This code implies (split_size*100)% of the values will be True
-    train = data[msk]  # Generating training data
-    test = data[~msk]  # generating testing data
-    return train, test
-
-
 def train_test_split_by_subjects(data):  # splitting by subjects
     subjects = [
         i for i in range(101, 109)
@@ -226,15 +217,6 @@ def split_by_activities(data):
     return data
 
 
-def random_subset(data, subset_frac):  # For selecting a random subset of data
-    np.random.seed(8)
-    msk = (
-        np.random.rand(len(data)) < subset_frac
-    )  # This code implies (split_size*100)% of the values will be True
-    subset = data[msk]  # Generating subset
-    return subset
-
-
 # Loading data and doing the train-test split for EDA and Hypothesis testing.
 data = pd.read_pickle("activity_data.pkl")
 data = split_by_activities(data)
@@ -263,7 +245,7 @@ clean_data = data
 clean_data[features] = clean_data[features].ffill()
 display(clean_data.head())
 
-# After linear interpolation, the first four values of heart rate are still missing. So we fill that using back fill method.
+# After using the Forward Fill method, the first four values of heart rate are still missing. So the first four rows are dropped
 clean_data = clean_data.dropna()
 display(clean_data.head())
 
@@ -337,7 +319,7 @@ plt.show()
 
 #   As we expected, for running, most of the points lie along the x and y axis.
 
-# * Time series plot of x axis chest acceleration
+# * Time series plot of z axis chest acceleration
 
 plt.clf()
 random.seed(4)
@@ -347,28 +329,6 @@ sns.lineplot(
 )
 plt.show()
 
-
-# * Boxplot of rolling mean of vertical chest acceleration
-
-train["rolling_mean"] = train["chest_3D_acceleration_16_z"].rolling(256).mean()
-ax = sns.boxplot(x="activity_name", y="rolling_mean", data=train)
-ax.set_xticklabels(ax.get_xticklabels(), rotation=45)  # Rotating Text
-plt.show()
-
-# * Boxplot of rolling mean of horizontal ankle acceleration along x axis
-
-train["rolling_mean"] = train["ankle_3D_acceleration_16_x"].rolling(256).mean()
-ax = sns.boxplot(x="activity_name", y="rolling_mean", data=train)
-ax.set_xticklabels(ax.get_xticklabels(), rotation=45)  # Rotating Text
-plt.show()
-
-# * Boxplot of rolling mean of horizontal ankle acceleration along y axis
-
-train["rolling_mean"] = train["ankle_3D_acceleration_16_y"].rolling(256).mean()
-ax = sns.boxplot(x="activity_name", y="rolling_mean", data=train)
-ax.set_xticklabels(ax.get_xticklabels(), rotation=45)  # Rotating Text
-plt.show()
-
 # * Boxplot of heart rate grouped by activity type.
 
 rcParams["figure.figsize"] = 15, 10
@@ -376,7 +336,7 @@ ax = sns.boxplot(x="activity_type", y="heart_rate", data=train)
 ax.set_xticklabels(ax.get_xticklabels(), rotation=0)  # Rotating Text
 plt.show()
 
-#  1. We observe that moderate and intense activities have higher heart rate than
+#  1. It is observed that moderate and intense activities have higher heart rate than
 #     light activities as expected.
 #  2. There doesn't seem to be much seperation between moderate and intesne activity
 #     heart rate.
@@ -474,6 +434,18 @@ plt.show()
 # 2. The respective histograms indicate that both the features considered have
 #    a multi-modal distribution.
 
+# * Correlation map for relevant features
+discard = [
+    "activity_id",
+    "activity",
+    "time_stamp",
+    "id",
+]  # Columns to exclude from correlation map and descriptive statistics
+train_trimmed = train[set(train.columns).difference(set(discard))]
+
+rcParams["figure.figsize"] = 30, 30
+sns.heatmap(train_trimmed.corr(), cmap="BrBG")
+plt.show()
 
 # ### Descriptive Statistics
 # Subject Details
@@ -481,28 +453,16 @@ plt.show()
 display(subj_det)
 
 # Mean of heart rate and temperatures for each activity
+
 display(
     train.groupby(by="activity_name")[
         ["heart_rate", "chest_temperature", "hand_temperature", "ankle_temperature"]
     ].mean()
 )
-discard = [
-    "activity_id",
-    "activity",
-    "time_stamp",
-    "id",
-]  # Columns to exclude from descriptive statistics
-
-# Creating table with only relevant columns
-train_trimmed = train[[i for i in train.columns if i not in discard]]
 
 # Descriptive info of relevant feature
 
 display(train_trimmed.describe())
-
-# Correlation table of relevant features
-
-display(train_trimmed.corr())
 
 # Variance of each axis of acceleration grouped by activities
 
@@ -643,112 +603,38 @@ class modelling:
         self.test_subjects = test_subjects
         self.features = features
 
-    def train_test_split_acttype(self):
-        le = preprocessing.LabelEncoder()
+    def split_input_data(self):
         train = self.clean_data[self.clean_data.id.isin(self.train_subjects)]
         val = self.clean_data[self.clean_data.id.isin(self.val_subjects)]
         test = self.clean_data[self.clean_data.id.isin(self.test_subjects)]
         x_train = train[self.features]
         x_val = val[self.features]
         x_test = test[self.features]
+        return train, val, test, x_train, x_val, x_test
+
+    def split_one_act(self, activity):
+        train, val, test, x_train, x_val, x_test = self.split_input_data()
+        one_hot_label = lambda x: 1 if x == activity else 0
+        y_train = train.activity_name.apply(lambda x: one_hot_label(x))
+        y_val = val.activity_name.apply(lambda x: one_hot_label(x))
+        y_test = test.activity_name.apply(lambda x: one_hot_label(x))
+        return x_train, x_val, x_test, y_train, y_val, y_test
+
+    def train_test_split_acttype(self):
+        le = preprocessing.LabelEncoder()
+        train, val, test, x_train, x_val, x_test = self.split_input_data()
         y_train = le.fit_transform(train.activity_type)
         y_val = le.fit_transform(val.activity_type)
         y_test = le.fit_transform(test.activity_type)
-        return x_train, x_val, x_test, y_train, y_val, y_test
+        return x_train, x_val, x_test, y_train, y_val, y_test, le
 
     def train_test_split_actname(self):
         le = preprocessing.LabelEncoder()
-        train = self.clean_data[self.clean_data.id.isin(self.train_subjects)]
-        val = self.clean_data[self.clean_data.id.isin(self.val_subjects)]
-        test = self.clean_data[self.clean_data.id.isin(self.test_subjects)]
-        x_train = train[self.features]
-        x_val = val[self.features]
-        x_test = test[self.features]
+        train, val, test, x_train, x_val, x_test = self.split_input_data()
         y_train = le.fit_transform(train.activity_name)
         y_val = le.fit_transform(val.activity_name)
         y_test = le.fit_transform(test.activity_name)
-        return x_train, x_val, x_test, y_train, y_val, y_test
-
-    def validate_models(self, model_type, class_type):
-        clean_data_feats = self.clean_data
-        if class_type == "intensity":
-            (
-                x_train,
-                x_val,
-                x_test,
-                y_train,
-                y_val,
-                y_test,
-            ) = self.train_test_split_acttype()
-        else:
-            (
-                x_train,
-                x_val,
-                x_test,
-                y_train,
-                y_val,
-                y_test,
-            ) = self.train_test_split_actname()
-        pca = PCA(
-            n_components=0.99
-        )  # PCA object that retains only those eigenvalues that explain 99% of the variance
-        bic = []
-        mle = []
-        accuracy = []
-        l = []
-        if model_type == "Logistic":
-            df_lr = pd.DataFrame()
-            rb = RobustScaler()
-            x_train = pca.fit_transform(x_train)
-            x_train = rb.fit_transform(x_train)
-            x_val = pca.transform(x_val)
-            x_val = rb.transform(x_val)
-            x_test = pca.transform(x_test)
-            x_test = rb.transform(x_test)
-            for lam in np.arange(0.1, 1.1, 0.1):
-                # Initializing logistic Regression with specific lambda
-                model = LogisticRegression(random_state=0, solver="saga", C=1 / lam)
-                scores = model_scores(model, x_train, y_train, x_val, y_val)
-                mle.append(scores[0])
-                accuracy.append(scores[1])
-                bic.append(scores[2])
-                l.append(lam)
-
-            df_lr["MLE"] = mle
-            df_lr["Validation Accuracy"] = accuracy
-            df_lr["Lambda"] = l
-            df_lr["BIC"] = bic
-            return df_lr
-        elif model_type == "Random_Forest":
-
-            index = np.arange(5, 105, 5)
-            cols = [
-                np.arange(5, 105, 5),
-            ]
-            df_rf_acc = pd.DataFrame(index=index, columns=cols)
-            df_rf_acc.index.names = ["Minimum_Samples_Split"]
-            df_rf_acc.columns.names = ["Maximum Depth"]
-            df_rf_mle = pd.DataFrame(index=index, columns=cols)
-            df_rf_mle.index.names = ["Minimum_Samples_Split"]
-            df_rf_mle.columns.names = ["Maximum Depth"]
-            df_rf_bic = pd.DataFrame(index=index, columns=cols)
-            df_rf_bic.index.names = ["Minimum_Samples_Split"]
-            df_rf_bic.columns.names = ["Maximum Depth"]
-
-            for min_samp in range(5, 105, 5):
-                for max_depth in range(5, 105, 5):
-                    # Initializing random forest
-                    rf = RandomForestClassifier(
-                        random_state=0, max_depth=max_depth, min_samples_split=min_samp
-                    )
-                    # Calculating Scores
-                    scores = model_scores(rf, x_train, y_train, x_val, y_val)
-                    # Appending scores to respective dataframes
-                    df_rf_mle.loc[min_samp, max_depth] = scores[0]
-                    df_rf_acc.loc[min_samp, max_depth] = scores[1]
-                    df_rf_bic.loc[min_samp, max_depth] = scores[2]
-
-            return df_rf_mle, df_rf_acc, df_rf_bic
+        return x_train, x_val, x_test, y_train, y_val, y_test, le
 
 
 # **Warning**: This cell takes a very long time to run.It is advised to use a debugger to run
@@ -766,35 +652,203 @@ def final_sliding_window(clean_data):
     return clean_data_feats
 
 
-def model_scores(model, x_train, y_train, x_val, y_val):
-    n = x_train.shape[0]
-    k = x_train.shape[1]
-    model.fit(x_train, y_train)
-    mle = log_loss(y_train, model.predict_proba(x_train))
-    accuracy = accuracy_score(y_val, model.predict(x_val))
-    bic = k * np.log(n) - 2 * mle
-    return mle, accuracy, bic
-
-
 # **Remember to uncomment line below**
 # final_sliding_window(clean_data)
 # print(clean_data[[i for i in clean_data.columns if 'roll' in i]].head())
 
+
 clean_data_feats = pd.read_pickle("activity_short_data.pkl")
 features = [i for i in clean_data_feats.columns if i not in discard]
-modelling = modelling(clean_data_feats, features)
-# Uncomment line below to run code for generating performance tables for random forests.
-# df_rf_mle, df_rf_acc, df_rf_bic = modelling.validate_models("Random_Forest", "normal")
+model = modelling(clean_data_feats, features)
 
-df_rf_mle = pd.read_pickle("rf_mle.pkl")
-df_rf_bic = pd.read_pickle("rf_bic.pkl")
-df_rf_acc = pd.read_pickle("rf_acc.pkl")
-total_data = np.hstack((np.array(df_rf_mle), np.array(df_rf_bic), np.array(df_rf_acc)))
-cols = [["mle"] * 20 + ["bic"] * 20 + ["acc"] * 20, list(np.arange(5, 105, 5)) * 3]
-final_df = pd.DataFrame(columns=cols, index=list(np.arange(5, 105, 5)), data=total_data)
-final_df.index.names = ["Minimum Samples Split"]
-final_df.columns.names = ["Maximum Depth", ""]
-final_df.to_pickle("rf_model_results.pkl")
-print(final_df)
+(
+    x_train,
+    x_val,
+    x_test,
+    y_train,
+    y_val,
+    y_test,
+    le,
+) = model.train_test_split_actname()
 
+x_train_labels = pd.DataFrame()
+x_train_labels["activity_name"] = le.inverse_transform(y_train)
+ncluster = 92
+clusters = dict()
+recison = dict()
+
+
+def precision(df):
+    df.columns = ["activity", "labels"]
+    act_precision = dict()
+    for act in df.activity.unique():
+        num = 0
+        denom = 0
+        df_act = df[df.activity == act]
+        c_lab = df_act.labels.value_counts()
+        for lab in df_act.labels.unique():
+            clust_prob = len(df[(df.activity == act) & (df.labels == lab)]) / len(
+                df[df.labels == lab]
+            )
+            num = num + clust_prob * c_lab[lab]
+            denom = denom + c_lab[lab]
+        act_precision[act] = num / denom
+    return act_precision
+
+
+# takes time
+def best_cluster():
+    v_measure = dict()
+    for nclust in range(12, 112, 5):
+        clust_vmeasure = []
+        for col in x_train.columns:
+            clust = cluster.KMeans(init="random", random_state=0, n_clusters=nclust)
+            clust.fit(x_train[[col]])
+            x_train_labels[f"{col}_label"] = clust.predict(x_train[[col]])
+            clust_vmeasure.append(
+                v_measure_score(y_train, x_train_labels[f"{col}_label"])
+            )
+        v_measure[nclust] = [np.array(clust_vmeasure).mean()]
+    nclust_max = max(v_measure, key=v_measure.get)
+    print(f"best cluster size : {nclust_max}")
+    return v_measure
+
+
+vm = pd.DataFrame(best_cluster())
+vm.to_pickle("v_measure.pkl")
+print(vm)
+# Not much difference found so using 100 clusters
+
+
+def activity_precision():
+    label_act_precision = dict()
+    for i in x_train.columns:
+        clust = cluster.KMeans(init="random", random_state=0, n_clusters=100)
+        clust.fit(x_train[[i]])
+        x_train_labels[f"{i}_label"] = clust.predict(x_train[[i]])
+        label_act_precision[i] = precision(
+            x_train_labels[["activity_name", f"{i}_label"]]
+        )
+    return label_act_precision
+
+
+# remember to uncomment for checking code
+# lab_score = pd.DataFrame(activity_precision())
+# lab_score.to_pickle("precision_score.pkl")
+lab_score = pd.read_pickle("precision_score.pkl")
+
+print("Precision score for each activity with respect to features")
+print(lab_score)
+
+
+def one_act_model(act, low_index, up_index, lab_score):
+    lab_score = lab_score.T
+    best_feats = list(
+        lab_score[act].sort_values(ascending=False).index[low_index:up_index]
+    )
+    model = modelling(clean_data_feats, best_feats)
+    x_train, x_val, x_test, y_train, y_val, y_test = model.split_one_act(act)
+    pca = PCA(n_components=0.99)
+    x_train = pca.fit_transform(x_train)
+    x_val = pca.transform(x_val)
+    x_test = pca.transform(x_test)
+    f1 = []
+    acc = []
+    for lam in np.arange(0.1, 1, 0.1):
+
+        lr = LogisticRegression(solver="saga", random_state=30, C=1 / lam)
+        lr.fit(x_train, y_train)
+        f1.append(f1_score(y_val, lr.predict(x_val)))
+        acc.append(accuracy_score(y_val, lr.predict(x_val)))
+    df_lr = pd.DataFrame()
+    df_lr["validation_accuracy"] = acc
+    df_lr["f1"] = f1
+    df_lr["lambda"] = np.arange(0.1, 1, 0.1)
+    return df_lr, model, best_feats
+
+
+df_lr_best_feat, best_model, best_feats = one_act_model("lying", 0, 4, lab_score)
+df_lr_worst_feat, worst_model, worst_feats = one_act_model("lying", -4, -1, lab_score)
+print("best feature performance")
+print(df_lr_best_feat)
+print("worst feature performance")
+print(df_lr_worst_feat)
+print("done")
+
+# Since all \lambda values give the same results we use just lambda = 0.9 and test this final model on test set.
+lam = 0.9
+x_train, x_val, x_test, y_train, y_val, y_test = best_model.split_one_act("lying")
+lr = LogisticRegression(solver="saga", random_state=30, C=1 / lam)
+lr.fit(x_train, y_train)
+print("Test Set Results")
+print(classification_report(y_test, lr.predict(x_test)))
+print(f"Best Features for lying: {best_feats}")
+print(f"Worst Features for lying: {worst_feats}")
+
+# prediction using Clustering
+# for clustering we will select top 4 attributes with best precision for each activity.
+# best Feature list
+feat_score = lab_score.T
+best_feats = np.concatenate(
+    [
+        list(feat_score[act].sort_values(ascending=False).index[0:4])
+        for act in feat_score.columns
+    ]
+)
+
+cluster_pred = modelling(clean_data_feats, best_feats)
+(
+    x_train,
+    x_val,
+    x_test,
+    y_train,
+    y_val,
+    y_test,
+    le,
+) = cluster_pred.train_test_split_actname()
+
+
+def determine_ncluster(x_train, y_train):
+    v_measure_feats = defaultdict(list)
+    for ncluster in range(12, 100, 5):
+        clust = cluster.KMeans(init="random", random_state=0, n_clusters=ncluster)
+        clust.fit(x_train)
+        y_lab = clust.predict(x_train)
+        v_measure_feats[ncluster].append(v_measure_score(y_train, y_lab))
+        print(f"cluster {ncluster} done")
+    return v_measure_feats
+
+
+# remember to uncomment to genereate homogeneity score
+# v_measure_feats = determine_ncluster(x_train, y_train)
+# pd.DataFrame(v_measure_feats).to_pickle("multiple_feature_vmeasure.pkl")
+v_measure = pd.read_pickle("multiple_feature_vmeasure.pkl")
+ncluster = v_measure.idxmax(axis=1).values[0]
+print(f"Optimal No. of Clusters:{ncluster}")
+clf = cluster.KMeans(init="random", n_clusters=ncluster, random_state=0)
+clf.fit(x_train, y_train)
+x_train_labels = x_train.copy()
+x_train_labels["labels"] = clf.predict(x_train)
+x_train_labels["activity_name"] = le.inverse_transform(y_train)
+xc = pd.DataFrame(
+    index=x_train_labels.activity_name.unique(),
+    columns=x_train_labels.labels.unique(),
+)
+for i in range(ncluster):
+    temp = x_train_labels[x_train_labels.labels == i]
+    for j in x_train_labels.activity_name.unique():
+        clust_prob = len(temp[temp.activity_name == j]) / len(temp)
+        xc.loc[j, i] = clust_prob
+print(xc)
+xc = xc.astype("float")
+x_val_labels = pd.DataFrame(x_val).copy()
+x_val_labels["activity_name"] = le.inverse_transform(y_val)
+x_val_labels["labels"] = clf.predict(x_val)
+x_val_labels["predicted_activity"] = x_val_labels.labels.apply(
+    lambda x: xc[[x]].idxmax().values[0]
+)
+print(
+    len(x_val_labels[x_val_labels.activity_name == x_val_labels.predicted_activity])
+    / len(x_val_labels)
+)
 print("Thank You")
