@@ -32,14 +32,17 @@ warnings.filterwarnings("ignore")
 
 # ## Data Cleaning
 # For tidying up the data :
-# - We load the data of various subjects and give relevant column names
+# - The data of various subjects is loaded and given relevant column names
 #   for various features.
 # - The data for all subjects are then stacked together to form one table.
-# - We remove the 'Orientation' columns because it was mentioned
+# - 'Orientation' columns are removed because it was mentioned
 #   in the data report that it is invalid in this data collection.
+# - The accelerometer of sensitivity 6g is also removed as it's not completely
+#   accurate for all activities due to its low sensitivity.
 # - Similarly, the rows with Activity ID "0" are also removed as
 #   it does not relate to any specific activity.
-# - The missing values are filled up using the linear interpolation method.
+# - The missing values are filled up using the forward fill method.In this method,
+#   the blank values are filled with the value occuring just before it.
 # - Added a new feature, 'BMI' or Body Mass Index for the 'subject_detail' table
 # - Additional feature, 'Activity Type' is added to the data which classifies activities
 #   into 3 classes, 'Light' activity,'Moderate' activity and 'Intense' activity.
@@ -48,6 +51,7 @@ warnings.filterwarnings("ignore")
 #      considered as 'Moderate' activities
 #   3. Ascending stairs,running and rope jumping are labelled as 'Intense' activities.
 #   This classification makes it easier to perform hypothesis testing between pair of attributes.
+# - Subject 109 is not considered for analysis as it has performed few protocol activities.
 
 
 # Given below are functions to give relevant names to the columns and create a
@@ -247,7 +251,7 @@ display(clean_data.head())
 clean_data.to_pickle("clean_act_data.pkl")
 
 # ## Exploratory Data Analysis
-# After labelling the data appropriately, we have selected 4 subjects for training set and
+# After labelling the data appropriately, 4 subjects are selected for training set and
 # 4 subjects for testing set such that the training and testing set have approximately equal size.
 # In the training set, we perform Exploratory Data Analysis and come up with potential hypotheses.
 # We then test those hypotheses on the testing set.
@@ -343,8 +347,8 @@ plt.show()
 
 #  1. It is observed that moderate and intense activities have higher heart rate than
 #     light activities as expected.
-#  2. There doesn't seem to be much seperation between moderate and intesne activity
-#     heart rate.
+#  2. There doesn't seem to be much seperation between heart rate of  moderate and intesne
+#     activity.
 
 
 # * Boxplot of heart rate grouped by activity.
@@ -449,7 +453,7 @@ display(
     ].mean()
 )
 
-# Descriptive info of relevant feature
+# Descriptive info of relevant features
 
 display(train_trimmed.describe())
 
@@ -466,7 +470,6 @@ display(train.groupby(by="activity_name")[coordinates].var())
 # - Heart rate of intense activities are greater than heart rate of light activities.
 # - Chest acceleration along z axis is greater while lying compared to z axis chest
 #   acceleration of other activities.
-# - Chest acceleration along x axis is greater than that along z axis during running.
 
 
 # Based on the EDA  we performed, it does not seem that the data is normally distributed. It is
@@ -503,39 +506,52 @@ print(ranksums(test1, test2, alternative="greater"))
 
 
 # ### Hypothesis 3
-# $H_0$(Null) : The z axis chest acceleration during lying is lower or same as acceleration of all other activities
-# $H_1$(Alternate) :The z axis chest acceleration during lying is higher than the acceleration of all other activities
-
-
-test["lying_or_not"] = test.activity_name.apply(lambda x: 1 if x == "lying" else 0)
-feature = "chest_3D_acceleration_16_z"
-test_hypothesis = test[["lying_or_not", feature]].dropna()
-x = test_hypothesis.lying_or_not
+# $H_0$(Null) : The z axis chest acceleration during lying is lower or same as acceleration of all other activities.
+# $H_1$(Alternate) :The z axis chest acceleration during lying is higher than the acceleration of all other activities.
+# A linear regression is carried out to test this hypothesis. $Y_{t}$ is the chest acceleration
+# along z axis at time t  and $X_{t}$ is the dummy variable for the activity of lying such that
+#
+# $$ X_{t} = \begin{cases} 1, & \text{if subject is lying at time t} \\ 0,  & \text{if subject is performing any other activity apart from lying at time t} \end{cases} $$
+#
+# The regression equation is  $Y_{t} = \beta X_{t} + \alpha$ where $\alpha$ is the intercept.
+# It is tested if $\beta>0$
+# A $\beta$ value of greater than 0 proves that the vertical chest acceleration is more during
+# lying when compared to other activities.
+# Our hypothesis can be restated as
+# $ H_0: \beta \leq 0 $
+# $ H_1: \beta > 0 $
+test_feat = "chest_3D_acceleration_16_z"
+act = "lying"
+act_name = f"{act}_or_not"
+test[act_name] = test.activity_name.apply(lambda x: 1 if x == act else 0)
+test1 = test[[act_name, test_feat]].dropna()
+y = test1[test_feat]
+x = test1[act_name]
 x = sm.add_constant(x)
-y = test_hypothesis["feature"]
 model = sm.OLS(y, x)
 res = model.fit()
 display(res.summary())
 
-# Since we get a p-value of 0 which is lower than 0.05 we reject the null hypothesis and accept
-# the alternate hypothesis.
-
-# ### Hypothesis 4
-# $H_0$(Null) : The x axis chest acceleration during running is lower or same as the z axis acceleration.
-# $H_1$(Alternate) :The x axis chest acceleration during lying is higher than the z axis acceleration.
-
-
-test_l = test[test.activity_name == "running"]
-feature1 = "chest_3D_acceleration_16_x"
-feature2 = "chest_3D_acceleration_16_z"
-test1 = test_l[feature1]
-test2 = test_l[feature2]
-print(ranksums(test1, test2, alternative="greater"))
-
+# We get a t-statistic of 955 which means we can safely reject the null hypothesis and accept the
+# alternate hypothesis that vertical chest acceleration is indeed more during lying when compared
+# with other activities.
 # Since we get a p-value of 0 which is lower than 0.05 we reject the null hypothesis and accept
 # the alternate hypothesis.
 
 # ## Model Prediction
+# For this task, it was decided that it is better to make predictions every 1 second instead of
+# every 0.01 second as the activities are not likely to change that fast.To accomplish this, many additional features were computed using a sliding window approach.
+#
+# A sliding window length of 256 rows or 2.56 seconds was used with a step size of 100 or 1 second.A window length of 256 was selected since it is a power of 2, which makes it easier to compute the Fast Fourier Transform, an algorithm used in the computation of spectral centroid.Features like mean, median, variance and spectral centroid were then computed for each window and for each feature.For example, if the first sliding window was taken from time t to (t+2.56), then the second sliding window would be taken from time (t+1)  to (t+3.56).The original features were retained to compare their usefulness with the newly computed features.
+#
+# These features computed over the rolling window are essentially much more noise resistant, because they rely on taking into account multiple samples instead of just relying on one highly error-prone sample.Mean, median and variance of a feature computed over the sliding window capture essential information about the distribution of the feature in the period covered by the sliding window.
+#
+# In addition to the above three features, a frequency domain feature called spectral centroid was computed.
+# A frequency-domain feature was considered because it was expected that different activities would have different rhythms for certain features which could be determined by figuring out, for instance, their most dominant frequency when that activity is being performed.
+#
+# Spectral Centroid is computed as, $$\frac{\sum_{n=0}^{N-1} f(n) x(n)}{\sum_{n=0}^{N-1} x(n)}$$
+#
+# where $f(n)$ is the frequency value, while $x(n)$ is the absolute value of the Fourier coefficient of that frequency. In this analysis, the spectral centroid gives a value between 0 and 1. The actual frequency can be found out by multiplying this value by 256.
 
 clean_data = pd.read_pickle("clean_act_data.pkl")
 discard = [
@@ -786,7 +802,7 @@ print("worst feature performance")
 print(df_lr_worst_feat)
 print("done")
 
-# Since all $\lambda$ values give the same results we use just $lambda = 0.9$ and test this final model on test set.
+# Since all $\lambda$ values give the same results we use just $\lambda = 0.9$ and test this final model on test set.
 lam = 0.9
 x_train, x_val, x_test, y_train, y_val, y_test = best_model.split_one_act("lying")
 lr = LogisticRegression(solver="saga", random_state=30, C=1 / lam)
